@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoja de trabajo: el costo a mano</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
+<style>
+:root { --tinta: #1a1a1a; --papel: #ffffff; --nota: #fff3c4; --datos: #dbe8ff; --regla: #e1f3d8; --linea: #1a1a1a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; line-height: 1.45; }
+main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+.cab { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid var(--linea); padding-bottom: 6px; }
+h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 34px; margin: 14px 0 4px; }
+h2 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 20px; margin: 26px 0 8px; }
+.cuadro { border: 2px solid var(--linea); padding: 10px 14px; margin: 10px 0; }
+.dos { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.dos .katex-display { margin: 0.4em 0; }
+@media screen { .dos .katex-display { overflow-x: auto; overflow-y: hidden; } }
+.ded { background: var(--regla); }
+.ind { background: var(--datos); }
+.nota { background: var(--nota); }
+.dos h3, .caso h3 { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; margin: 0 0 6px; }
+.caso { border: 2px solid var(--linea); padding: 10px 14px; margin: 12px 0; break-inside: avoid; }
+.campos { display: grid; grid-template-columns: 120px 1fr; gap: 4px 10px; margin-top: 8px; }
+.campos span:nth-child(odd) { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; padding-top: 3px; }
+.campos span:nth-child(even) { border-bottom: 1px solid #999; min-height: 24px; }
+.campos .lleno { border-bottom: none; }
+.marca { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-top: 8px; }
+.roles { padding-left: 20px; margin: 6px 0; }
+.small { font-size: 13px; }
+@media (max-width: 600px) { .dos { grid-template-columns: 1fr; } .campos { grid-template-columns: 1fr; } }
+@media print { main { padding: 0; } h2 { break-after: avoid; } }
+</style>
+
+<style>
+table.t { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 14px; }
+table.t th, table.t td { border: 1.5px solid var(--linea); padding: 5px 8px; text-align: center; }
+table.t th { background: var(--tinta); color: var(--papel); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; }
+table.t td.vacio { min-width: 70px; }
+.cuadricula { width: 100%; max-width: 560px; height: 260px; border: 2px solid var(--linea); margin: 8px 0;
+  background-image: linear-gradient(#bbb 1px, transparent 1px), linear-gradient(90deg, #bbb 1px, transparent 1px); background-size: 28px 26px; position: relative; }
+.ejes { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.liga { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; word-break: break-all; background: #f4f4f4; border: 1px solid #999; padding: 6px 8px; margin: 6px 0; user-select: all; }
+</style>
+</head>
+<body>
+<main>
+
+<div class="cab"><span>DAMMG Módulo VI, Sesión 1</span><span>VI.2 Regresión lineal</span></div>
+
+<h1>Hoja de trabajo: el costo a mano</h1>
+
+<div class="cuadro ind">
+<strong>Lo mismo, en Python, en Colab:</strong>
+<p class="liga">https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/salas/S1_costo.ipynb</p> Úsenlo si pueden; esta hoja es por si Colab no abre.
+</div>
+
+<div class="cuadro nota">
+<strong>En la sala, 10 minutos, de 3 o 4 personas.</strong> Repártanse cuatro papeles (si son tres, quien lee también calcula):
+<ul class="roles">
+<li><strong>Quien lee:</strong> lee cada paso en voz alta.</li>
+<li><strong>Quien calcula:</strong> corre las celdas o hace las cuentas; los demás revisan.</li>
+<li><strong>Quien duda:</strong> en cada resultado pregunta "¿y esto qué quiere decir?".</li>
+<li><strong>Quien escribe:</strong> anota y, al volver, manda la línea al chat.</li>
+</ul>
+Solo hay multiplicaciones y sumas; se vale calculadora. Anoten en papel: esta hoja no guarda lo que escriben. No se califica. Si no les da tiempo, hagan 1, 2 y 3.
+</div>
+
+<h2>Lo que vamos a usar</h2>
+
+<div class="dos">
+<div class="cuadro ded">
+<h3>La recta, con b = 0</h3>
+$$\hat y^{(i)} = w\,x^{(i)}$$
+<p class="small">Para simplificar, fijamos $b = 0$ y solo movemos $w$, el precio por kilo. Con 0 kilos se pagan 0 pesos.</p>
+</div>
+<div class="cuadro ind">
+<h3>El costo</h3>
+$$J(w) = \frac{1}{2m}\sum_{i=1}^{m}\big(\hat y^{(i)} - y^{(i)}\big)^2$$
+<p class="small">Se lee: "para cada ticket, predicción menos respuesta, al cuadrado; se suman; se divide entre dos veces el número de tickets". Ojo: $J$ no está en pesos, está en pesos al cuadrado. Sirve para comparar rectas: la de menor $J$ gana.</p>
+</div>
+</div>
+
+<h2>1. Ejemplo resuelto: J(25)</h2>
+
+<table class="t">
+<tr><th>i</th><th>x: kilos</th><th>y: pagado</th><th>ŷ = 25x</th><th>error ŷ − y</th><th>error²</th></tr>
+<tr><td>1</td><td>1</td><td>25</td><td>25</td><td>0</td><td>0</td></tr>
+<tr><td>2</td><td>2</td><td>51</td><td>50</td><td>−1</td><td>1</td></tr>
+<tr><td>3</td><td>3</td><td>74</td><td>75</td><td>1</td><td>1</td></tr>
+<tr><td colspan="5" style="text-align:right">suma de errores²</td><td>2</td></tr>
+</table>
+<p>$m = 3$, así que $J(25) = \dfrac{2}{2 \cdot 3} = \dfrac{2}{6} \approx 0.33$.</p>
+
+<h2>2. Ahora ustedes: J(20) y J(30)</h2>
+
+<table class="t">
+<tr><th>i</th><th>x</th><th>y</th><th>ŷ = 20x</th><th>ŷ − y</th><th>error²</th><th>ŷ = 30x</th><th>ŷ − y</th><th>error²</th></tr>
+<tr><td>1</td><td>1</td><td>25</td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td></tr>
+<tr><td>2</td><td>2</td><td>51</td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td></tr>
+<tr><td>3</td><td>3</td><td>74</td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td><td class="vacio"></td></tr>
+<tr><td colspan="5" style="text-align:right">suma</td><td class="vacio"></td><td colspan="2" style="text-align:right">suma</td><td class="vacio"></td></tr>
+</table>
+<p>$J(20) = $ ______ &nbsp;&nbsp;&nbsp; $J(30) = $ ______</p>
+
+<h2>3. Dibujen la U y busquen el fondo</h2>
+
+<p>Marquen $J(20)$, $J(25)$ y $J(30)$. Eje horizontal: $w$ de 15 a 35. Eje vertical: $J$ de 0 a 70.</p>
+<div class="cuadricula"></div>
+<p class="ejes">w: 15, 20, 25, 30, 35 (una marca cada 5)</p>
+<ul>
+<li>¿Dónde creen que queda el fondo? Si quieren afinar, calculen $J(24)$ y $J(26)$.</li>
+<li>Si el letrero decía 25, ¿por qué el fondo podría no estar exactamente en 25?</li>
+</ul>
+
+<h2>4. Un ticket más</h2>
+
+<div class="caso">
+Llega un cuarto ticket: <strong>4 kilos por 140 pesos</strong>. Ahora $m = 4$.
+<ul>
+<li>Antes de calcular nada, escriban qué creen que le pasa al fondo de la U.</li>
+<li>Calculen el error² de ese ticket con $w = 25$ y compárenlo con los otros tres. ¿Hacia dónde se mueve el fondo: a un $w$ más grande o más chico?</li>
+</ul>
+</div>
+
+<h2>5. De vuelta a MiBici</h2>
+
+<div class="caso">
+Con los datos de la estación 51 a las 8 a.m., la recta que minimiza $J$ es $\hat y = 0.27\,x + 21.1$, donde $x$ son las salidas de hace una semana.
+<ul>
+<li>Digan en palabras qué significa 0.27 y qué significa 21.1. (No es "el 27 %".)</li>
+<li>Si hace una semana salieron 0 bicis, ¿qué predice? ¿Le creerían?</li>
+</ul>
+</div>
+
+<h2>Su trabajo</h2>
+
+<div class="cuadro">
+Cada quien, en un minuto: una cantidad de su trabajo que predecirían con una recta. ¿Cuál sería su $x$? ¿Qué significaría su $w$?
+</div>
+
+<h2>Al volver a la sala principal</h2>
+
+<div class="cuadro nota">
+Quien escribe manda al chat, cuando el profesor diga "¡ya!", <strong>una sola línea</strong>:
+<p style="font-family: 'JetBrains Mono', monospace; font-size: 13px">J(20): __ J(30): __ / fondo en w ≈ __ / con el ticket nuevo, el fondo se mueve a w más __ / en una frase: cómo se escoge la recta</p>
+</div>
+
+</main>
+</body>
+</html>

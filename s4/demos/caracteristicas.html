@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Columnas que inventamos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+:root {
+  --papel: #fdfdfd; --papel2: #f2f2f2; --tinta: #1a1a1a; --tinta2: #575757;
+  --w: #0847c4; --error: #fb2c36; --amarillo: #ffcd42; --verde: #2e7d5b; --nota: #fff3c4;
+  --borde: 2.5px solid var(--tinta); --sombra: 5px 5px 0 var(--tinta);
+  --display: 'Oswald', 'Arial Narrow', sans-serif; --texto: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--papel); color: var(--tinta); font-family: var(--texto); }
+.marco { min-height: 100vh; display: grid; grid-template-columns: 42fr 58fr; gap: 22px; padding: 18px 22px; }
+h1 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.3rem, 2.4vw, 2.1rem); line-height: 1.05;
+  display: inline-block; margin: 0 0 14px; padding: 6px 14px; border: var(--borde); box-shadow: var(--sombra); }
+.izq { font-size: clamp(0.95rem, 1.4vw, 1.25rem); line-height: 1.45; }
+.formula { border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 6px 0; overflow-x: auto; }
+.palabras { background: var(--nota); border: 1.25px solid var(--tinta); padding: 6px 10px; margin: 6px 0; }
+.estado { font-family: var(--mono); font-size: 0.95em; border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 10px 0; min-height: 4.5em; }
+.ok { color: var(--verde); font-weight: 700; } .mal { color: var(--error); font-weight: 700; }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+button { font: 600 0.95rem var(--texto); padding: 7px 12px; border: var(--borde); background: var(--papel); cursor: pointer; box-shadow: 3px 3px 0 var(--tinta); }
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+button.on { background: var(--tinta); color: var(--papel); }
+.panel { border: var(--borde); box-shadow: var(--sombra); position: relative; }
+.panel svg { width: 100%; height: 100%; display: block; }
+.mono { font-family: var(--mono); }
+@media (max-width: 820px) { .marco { grid-template-columns: 1fr; } .panel { height: 360px; } }
+
+.cajas label { display: flex; align-items: center; gap: 10px; border: 1.25px solid var(--tinta); padding: 6px 10px; margin: 6px 0; cursor: pointer; }
+.cajas input { width: 20px; height: 20px; accent-color: var(--w); }
+.cajas .n { margin-left: auto; font-family: var(--mono); color: var(--tinta2); font-size: 0.85em; }
+.cajas label.fuga { border-color: var(--error); }
+.grande { font-family: var(--display); font-size: clamp(2.4rem, 6vw, 4.6rem); font-weight: 700; }
+.barras { padding: 18px 22px; }
+.fila { display: grid; grid-template-columns: 210px 1fr 60px; align-items: center; gap: 10px; margin: 14px 0; font-size: 1.05rem; }
+.barra { height: 34px; border: 2px solid var(--tinta); }
+</style>
+</head>
+<body>
+<div class="marco">
+  <section class="izq">
+    <h1>Columnas que inventamos</h1>
+    <div class="palabras">Escoge qué columnas le das a la recta. Cada una es una <strong>característica derivada</strong>: un rezago, una categoría o una combinación. El MAE es en julio, con la recta entrenada de octubre a junio.</div>
+    <div class="cajas" id="cajas">
+      <label><input type="checkbox" data-k="ayer"> Salidas de ayer (rezago de 24 h) <span class="n">1 columna</span></label>
+      <label><input type="checkbox" data-k="semana" checked> Salidas de hace una semana (rezago de 168 h) <span class="n">1 columna</span></label>
+      <label><input type="checkbox" data-k="hora"> Hora del día, como categoría <span class="n">24 columnas</span></label>
+      <label><input type="checkbox" data-k="estacion"> Estación, como categoría <span class="n">40 columnas</span></label>
+      <label><input type="checkbox" data-k="est_hora"> Estación × hora (interacción) <span class="n">960 columnas</span></label>
+      <label><input type="checkbox" data-k="est_hora_finde"> Estación × hora × fin de semana <span class="n">1920 columnas</span></label>
+      <label class="fuga"><input type="checkbox" data-k="fuga"> Llegadas de esa misma hora <span class="n">1 columna</span></label>
+    </div>
+    <div class="palabras">En scikit-learn: <span class="mono">OneHotEncoder()</span> convierte una categoría en columnas de 0 y 1; la interacción es la categoría combinada, o <span class="mono">PolynomialFeatures(interaction_only=True)</span>; el rezago es <span class="mono">serie.shift(k)</span> en pandas.</div>
+  </section>
+  <section class="panel barras" id="panel"></section>
+</div>
+<script>
+const MAE = {"ayer": 2.57, "semana": 2.35, "hora": 2.56, "estacion": 3.46, "est_hora": 2.15, "est_hora_finde": 1.95, "ayer+semana": 2.13, "ayer+hora": 2.23, "ayer+estacion": 2.59, "ayer+est_hora": 2.08, "ayer+est_hora_finde": 1.9, "semana+hora": 2.09, "semana+estacion": 2.36, "semana+est_hora": 1.98, "semana+est_hora_finde": 1.88, "hora+estacion": 2.58, "hora+est_hora": 2.15, "hora+est_hora_finde": 1.95, "estacion+est_hora": 2.15, "estacion+est_hora_finde": 1.95, "est_hora+est_hora_finde": 1.95, "ayer+semana+hora": 1.99, "ayer+semana+estacion": 2.14, "ayer+semana+est_hora": 1.94, "ayer+semana+est_hora_finde": 1.85, "ayer+hora+estacion": 2.31, "ayer+hora+est_hora": 2.08, "ayer+hora+est_hora_finde": 1.9, "ayer+estacion+est_hora": 2.08, "ayer+estacion+est_hora_finde": 1.9, "ayer+est_hora+est_hora_finde": 1.9, "semana+hora+estacion": 2.16, "semana+hora+est_hora": 1.98, "semana+hora+est_hora_finde": 1.88, "semana+estacion+est_hora": 1.98, "semana+estacion+est_hora_finde": 1.88, "semana+est_hora+est_hora_finde": 1.88, "hora+estacion+est_hora": 2.15, "hora+estacion+est_hora_finde": 1.95, "hora+est_hora+est_hora_finde": 1.95, "estacion+est_hora+est_hora_finde": 1.95, "ayer+semana+hora+estacion": 2.05, "ayer+semana+hora+est_hora": 1.94, "ayer+semana+hora+est_hora_finde": 1.85, "ayer+semana+estacion+est_hora": 1.94, "ayer+semana+estacion+est_hora_finde": 1.85, "ayer+semana+est_hora+est_hora_finde": 1.85, "ayer+hora+estacion+est_hora": 2.08, "ayer+hora+estacion+est_hora_finde": 1.9, "ayer+hora+est_hora+est_hora_finde": 1.9, "ayer+estacion+est_hora+est_hora_finde": 1.9, "semana+hora+estacion+est_hora": 1.98, "semana+hora+estacion+est_hora_finde": 1.88, "semana+hora+est_hora+est_hora_finde": 1.88, "semana+estacion+est_hora+est_hora_finde": 1.88, "hora+estacion+est_hora+est_hora_finde": 1.95, "ayer+semana+hora+estacion+est_hora": 1.94, "ayer+semana+hora+estacion+est_hora_finde": 1.85, "ayer+semana+hora+est_hora+est_hora_finde": 1.85, "ayer+semana+estacion+est_hora+est_hora_finde": 1.85, "ayer+hora+estacion+est_hora+est_hora_finde": 1.9, "semana+hora+estacion+est_hora+est_hora_finde": 1.88, "ayer+semana+hora+estacion+est_hora+est_hora_finde": 1.85}
+const REF = [["regla: hace una semana", 2.30, "#9a9a9a"], ["tabla por estación y hora", 1.95, "#2e7d5b"]]
+const ORDEN = ["ayer", "semana", "hora", "estacion", "est_hora", "est_hora_finde"]
+function pintar() {
+  const sel = [...document.querySelectorAll('#cajas input')].filter((c) => c.checked).map((c) => c.dataset.k)
+  const p = document.getElementById('panel')
+  if (sel.includes('fuga')) {
+    p.innerHTML = '<div class="grande" style="color:#fb2c36">Fuga</div><p style="font-size:1.25rem">Las llegadas de esa misma hora todavía no pasan cuando queremos predecir. En pruebas el modelo se vería buenísimo y en la vida real no funciona. <strong>Solo se vale lo que ya se conoce al momento de predecir.</strong></p>'
+    return
+  }
+  const clave = ORDEN.filter((k) => sel.includes(k)).join('+')
+  const v = MAE[clave]
+  if (v === undefined) { p.innerHTML = '<div class="grande">?</div><p style="font-size:1.2rem">Escoge al menos una columna.</p>'; return }
+  const filas = [["tu recta", v, "#0847c4"], ...REF]
+  const ancho = (x) => (x / 3.6 * 100).toFixed(1) + '%'
+  p.innerHTML = '<div>MAE en julio, bicis por hora</div><div class="grande">' + v.toFixed(2) + '</div>' +
+    filas.map(([n, x, c]) => '<div class="fila"><span>' + n + '</span><div class="barra" style="width:' + ancho(x) + ';background:' + c + '"></div><span class="mono">' + x.toFixed(2) + '</span></div>').join('') +
+    '<p style="font-size:1.1rem">' + (v < 1.95 ? '<strong>Le gana a la tabla.</strong> La interacción deja que cada estación tenga su propio patrón por hora.' : v <= 2.10 ? 'Cerca, pero la tabla sigue ganando.' : 'Todavía lejos.') + '</p>'
+}
+document.querySelectorAll('#cajas input').forEach((c) => c.onchange = pintar)
+window.addEventListener('load', pintar)
+</script>
+</body>
+</html>

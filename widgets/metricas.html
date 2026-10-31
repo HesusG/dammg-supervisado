@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Las métricas con cinco horas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --papel: #fdfdfd; --papel2: #f2f2f2; --tinta: #1a1a1a; --tinta2: #575757;
+  --w: #0847c4; --error: #fb2c36; --amarillo: #ffcd42; --verde: #2e7d5b; --nota: #fff3c4;
+  --borde: 2.5px solid var(--tinta); --sombra: 5px 5px 0 var(--tinta);
+  --display: 'Oswald', 'Arial Narrow', sans-serif; --texto: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--papel); color: var(--tinta); font-family: var(--texto); }
+main { max-width: 1200px; margin: 0 auto; padding: 18px 16px 30px; }
+h1 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  display: inline-block; margin: 0 0 12px; padding: 6px 14px; border: var(--borde); box-shadow: var(--sombra); }
+.nota { background: var(--nota); border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 10px 0; font-size: 1.05rem; }
+.grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 18px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+table { border-collapse: collapse; width: 100%; font-size: 1.05rem; }
+th, td { border: 1.25px solid var(--tinta); padding: 5px 7px; text-align: right; }
+th { background: var(--papel2); font-weight: 700; text-align: center; font-size: .92rem; }
+td.h { text-align: center; }
+input { width: 4.2em; font: 700 1rem var(--mono); text-align: right; border: 1.5px solid var(--w); padding: 2px 4px; background: #eef3ff; }
+.neg { color: var(--error); }
+tr.grande td { background: #ffe9ea; }
+tfoot td { font-weight: 700; background: var(--papel2); }
+.tarjetas { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.t { border: var(--borde); box-shadow: 3px 3px 0 var(--tinta); padding: 8px 10px; background: var(--papel); }
+.t .n { font-family: var(--display); font-size: 1.15rem; text-transform: uppercase; }
+.t .v { font: 700 1.8rem var(--mono); }
+.t .q { font-size: .93rem; color: var(--tinta2); }
+.t .m { font-size: .85rem; margin-top: 2px; }
+.t.mape { background: var(--nota); }
+.botones { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+button { font: 600 .95em var(--texto); padding: 5px 12px; border: var(--borde); background: var(--papel); cursor: pointer; box-shadow: 3px 3px 0 var(--tinta); }
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+.f { font: .82rem var(--mono); color: var(--tinta2); }
+</style>
+</head>
+<body>
+<main>
+<h1>Las métricas con cinco horas</h1>
+<div class="nota">Estación 51, lunes 27 de julio. La predicción es la regla "lo mismo que hace una semana". Cambien un número (azul) y vean cómo se mueve cada métrica. El error es <b>real menos predicho</b>.</div>
+
+<div class="botones">
+  <button id="b-orig">Los datos de la estación 51</button>
+  <button id="b-sin">Quitar el error grande (12:00 sale 11)</button>
+  <button id="b-cero">Una hora con 0 salidas (12:00 real = 0)</button>
+  <button id="b-uno">Una hora con 1 salida (12:00 real = 1)</button>
+</div>
+
+<div class="grid">
+<div>
+<table>
+  <thead><tr><th>Hora</th><th>Predicho ŷ</th><th>Real y</th><th>Error y − ŷ</th><th>Sin signo |e|</th><th>Al cuadrado e²</th><th>|e| ÷ real</th></tr></thead>
+  <tbody id="filas"></tbody>
+  <tfoot><tr><td class="h">Suma</td><td></td><td></td><td id="s-e"></td><td id="s-a"></td><td id="s-c"></td><td id="s-p"></td></tr>
+  <tr><td class="h">Promedio</td><td></td><td id="m-y"></td><td id="m-e"></td><td id="m-a"></td><td id="m-c"></td><td id="m-p"></td></tr></tfoot>
+</table>
+<p class="f">Suma del error con signo = la que se cancela. Promedio sin signo = MAE. Suma al cuadrado = SSE. Promedio al cuadrado = MSE. Promedio de |e| ÷ real = MAPE.</p>
+</div>
+
+<div class="tarjetas">
+  <div class="t"><div class="n">MAE</div><div class="v" id="v-mae"></div><div class="q">¿Cuánto me equivoco normalmente? En bicis.</div><div class="m">Más bajo es mejor.</div></div>
+  <div class="t"><div class="n">RMSE</div><div class="v" id="v-rmse"></div><div class="q">¿Cuánto me equivoco, con lupa en los errores grandes? En bicis.</div><div class="m">Más bajo es mejor. Si queda muy arriba del MAE, hay errores grandes.</div></div>
+  <div class="t"><div class="n">MSE</div><div class="v" id="v-mse"></div><div class="q">Lo mismo que el RMSE, pero en bicis al cuadrado.</div><div class="m">Más bajo es mejor. J de ayer = MSE ÷ 2 = <span id="v-j"></span>.</div></div>
+  <div class="t"><div class="n">SSE</div><div class="v" id="v-sse"></div><div class="q">¿Cuál es el error al cuadrado total? Crece con más filas.</div><div class="m">Más bajo es mejor.</div></div>
+  <div class="t"><div class="n">R²</div><div class="v" id="v-r2"></div><div class="q">¿Cuánto le gano a decir siempre el promedio de lo real?</div><div class="m">Más alto es mejor. 1 perfecto, 0 igual que el promedio, negativo peor.</div></div>
+  <div class="t mape"><div class="n">MAPE</div><div class="v" id="v-mape"></div><div class="q">¿Por qué porcentaje de lo que pasó me equivoco?</div><div class="m" id="m-mape">Más bajo es mejor.</div></div>
+</div>
+</div>
+
+<div class="nota"><b>¿Para qué sirve el MAPE?</b> Para decir el error en porcentaje: "fallo por el 10 % de lo que se vende". Sirve para comparar cosas de distinto tamaño (una estación grande y una chica, una tienda y otra) y se entiende fácil en negocio. <b>Pero divide entre lo real</b>: cuando lo real es 0 no existe, y cuando es muy chico (1 o 2 bicis) se dispara. En MiBici casi 3 de cada 10 horas tienen 0 salidas, así que aquí usamos el MAE. El MAPE conviene cuando lo real nunca es 0 ni muy chico: ventas de una tienda grande, consumo de luz, precios.</div>
+</main>
+
+<script>
+const ORIG = { horas: ["8:00", "9:00", "10:00", "11:00", "12:00"], pred: [32, 20, 8, 11, 11], real: [34, 22, 10, 12, 4] };
+let pred = [...ORIG.pred], real = [...ORIG.real];
+const $ = id => document.getElementById(id);
+const fmt = (x, d = 2) => Number.isFinite(x) ? (Math.round(x * 10 ** d) / 10 ** d).toLocaleString("es-MX") : "no existe";
+
+function dibuja() {
+  const tb = $("filas"); tb.innerHTML = "";
+  const e = real.map((r, i) => r - pred[i]);
+  const a = e.map(Math.abs), c = e.map(x => x * x);
+  const p = a.map((x, i) => real[i] === 0 ? Infinity : x / Math.abs(real[i]) * 100);
+  const maxA = Math.max(...a);
+  ORIG.horas.forEach((h, i) => {
+    const tr = document.createElement("tr");
+    if (a[i] === maxA && maxA >= 5) tr.className = "grande";
+    tr.innerHTML = `<td class="h">${h}</td>
+      <td><input type="number" value="${pred[i]}" data-k="pred" data-i="${i}"></td>
+      <td><input type="number" value="${real[i]}" min="0" data-k="real" data-i="${i}"></td>
+      <td class="${e[i] < 0 ? "neg" : ""}">${e[i]}</td><td>${a[i]}</td><td>${c[i]}</td>
+      <td>${Number.isFinite(p[i]) ? fmt(p[i], 1) + " %" : "no existe (÷ 0)"}</td>`;
+    tb.appendChild(tr);
+  });
+  tb.querySelectorAll("input").forEach(inp => inp.addEventListener("input", ev => {
+    const v = Number(ev.target.value); if (!Number.isFinite(v)) return;
+    (ev.target.dataset.k === "pred" ? pred : real)[+ev.target.dataset.i] = v; dibuja();
+    const nuevo = document.querySelector(`input[data-k="${ev.target.dataset.k}"][data-i="${ev.target.dataset.i}"]`);
+    nuevo.focus(); nuevo.setSelectionRange?.(99, 99);
+  }));
+  const m = e.length, sum = arr => arr.reduce((s, x) => s + x, 0);
+  const mae = sum(a) / m, sse = sum(c), mse = sse / m, rmse = Math.sqrt(mse);
+  const media = sum(real) / m, sst = sum(real.map(y => (y - media) ** 2));
+  const r2 = sst === 0 ? NaN : 1 - sse / sst;
+  const mape = sum(p) / m;
+  $("s-e").textContent = sum(e); $("s-a").textContent = sum(a); $("s-c").textContent = sse;
+  $("s-p").textContent = Number.isFinite(sum(p)) ? fmt(sum(p), 1) + " %" : "no existe";
+  $("m-y").textContent = fmt(media, 1); $("m-e").textContent = fmt(sum(e) / m);
+  $("m-a").textContent = fmt(mae); $("m-c").textContent = fmt(mse);
+  $("m-p").textContent = Number.isFinite(mape) ? fmt(mape, 1) + " %" : "no existe";
+  $("v-mae").textContent = fmt(mae); $("v-rmse").textContent = fmt(rmse); $("v-mse").textContent = fmt(mse);
+  $("v-j").textContent = fmt(mse / 2); $("v-sse").textContent = fmt(sse, 1); $("v-r2").textContent = fmt(r2);
+  $("v-mape").textContent = Number.isFinite(mape) ? fmt(mape, 1) + " %" : "no existe";
+  $("m-mape").textContent = Number.isFinite(mape) ? "Más bajo es mejor." : "Una hora tuvo 0 salidas: dividir entre 0 no existe.";
+}
+$("b-orig").onclick = () => { pred = [...ORIG.pred]; real = [...ORIG.real]; dibuja(); };
+$("b-sin").onclick = () => { pred = [...ORIG.pred]; real = [...ORIG.real]; real[4] = 11; dibuja(); };
+$("b-cero").onclick = () => { pred = [...ORIG.pred]; real = [...ORIG.real]; real[4] = 0; dibuja(); };
+$("b-uno").onclick = () => { pred = [...ORIG.pred]; real = [...ORIG.real]; real[4] = 1; dibuja(); };
+dibuja();
+</script>
+</body>
+</html>

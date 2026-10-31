@@ -1,0 +1,39 @@
+{
+  "archivo": "mibici_curso.parquet",
+  "sha256": "a5fd844c57bbf220f0ddfc27dc965ef8fb8438bd6c1167709bde7ccc1dafa6d8",
+  "filas": 342680,
+  "estaciones": 40,
+  "desde": "2025-10-08 23:00:00",
+  "hasta": "2026-09-30 21:00:00",
+  "particiones": {
+    "train": 254440,
+    "test": 58480,
+    "val": 29760
+  },
+  "umbral_evento_flujo_neto": 7.0,
+  "prevalencia_evento": {
+    "test": 0.1664671682626539,
+    "train": 0.1587997170256249,
+    "val": 0.14539650537634408
+  },
+  "fuente": "Panel agregado estación-hora derivado de los datos abiertos de MiBici (Guadalajara), vía TC5061-Proyecto-Referencia",
+  "panel_completo": {
+    "archivo": "mibici_panel_completo.parquet",
+    "sha256": "37c815f15cd5b8b9713c36705fa8b58746060a5211bd3683cc1befada94cea79",
+    "filas": 4108440,
+    "estaciones": 469,
+    "desde": "2025-10-01 00:00:00",
+    "hasta": "2026-09-30 23:00:00",
+    "particiones": {
+      "train": 3072888,
+      "test": 686616,
+      "val": 348936
+    },
+    "prevalencia_risk": {
+      "test": 0.021825882298111318,
+      "train": 0.019765445405104255,
+      "val": 0.016633422748011096
+    },
+    "nota": "Mismo panel que TC5061 (risk = |future_net| ≥ 0.5 × capacidad). Las primeras horas de cada estación tienen lags vacíos (NaN)."
+  }
+}

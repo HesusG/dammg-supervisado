@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformar para separar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+:root {
+  --papel: #fdfdfd; --papel2: #f2f2f2; --tinta: #1a1a1a; --tinta2: #575757;
+  --w: #0847c4; --error: #fb2c36; --amarillo: #ffcd42; --verde: #2e7d5b; --nota: #fff3c4;
+  --borde: 2.5px solid var(--tinta); --sombra: 5px 5px 0 var(--tinta);
+  --display: 'Oswald', 'Arial Narrow', sans-serif; --texto: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--papel); color: var(--tinta); font-family: var(--texto); }
+.marco { min-height: 100vh; display: grid; grid-template-columns: 42fr 58fr; gap: 22px; padding: 18px 22px; }
+h1 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.3rem, 2.4vw, 2.1rem); line-height: 1.05;
+  display: inline-block; margin: 0 0 14px; padding: 6px 14px; border: var(--borde); box-shadow: var(--sombra); }
+.izq { font-size: clamp(0.95rem, 1.4vw, 1.25rem); line-height: 1.45; }
+.formula { border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 6px 0; overflow-x: auto; }
+.palabras { background: var(--nota); border: 1.25px solid var(--tinta); padding: 6px 10px; margin: 6px 0; }
+.estado { font-family: var(--mono); font-size: 0.95em; border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 10px 0; min-height: 4.5em; }
+.ok { color: var(--verde); font-weight: 700; } .mal { color: var(--error); font-weight: 700; }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+button { font: 600 0.95rem var(--texto); padding: 7px 12px; border: var(--borde); background: var(--papel); cursor: pointer; box-shadow: 3px 3px 0 var(--tinta); }
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+button.on { background: var(--tinta); color: var(--papel); }
+.panel { border: var(--borde); box-shadow: var(--sombra); position: relative; }
+.panel svg { width: 100%; height: 100%; display: block; }
+.mono { font-family: var(--mono); }
+@media (max-width: 820px) { .marco { grid-template-columns: 1fr; } .panel { height: 360px; } }
+
+input[type=range] { width: 100%; accent-color: var(--w); }
+.grande { font-family: var(--display); font-size: clamp(1.8rem, 3.6vw, 2.8rem); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="marco">
+  <section class="izq">
+    <h1>Transformar para separar</h1>
+    <div class="botones" id="modos">
+      <button data-m="1" class="on">1. Una columna</button>
+      <button data-m="2">2. El anillo</button>
+    </div>
+    <div class="palabras" id="texto"></div>
+    <div class="botones"><button id="transf">Agregar la columna nueva</button></div>
+    <div class="mono" id="etqcorte" style="margin-top:8px"></div>
+    <input type="range" id="corte" min="0" max="100" value="50">
+    <div style="margin-top:10px">acierta: <span class="grande" id="acc"></span></div>
+    <div class="palabras">En scikit-learn: <span class="mono">make_pipeline(PolynomialFeatures(degree=2), LogisticRegression())</span>. Crea las columnas nuevas y la logística escoge el corte.</div>
+  </section>
+  <section class="panel"><svg id="g" viewBox="0 0 600 520" preserveAspectRatio="xMidYMid meet"></svg></section>
+</div>
+<script>
+// datos deterministas: azul = clase 1, gris = clase 0
+let sem = 7
+const rnd = () => { sem = (sem * 9301 + 49297) % 233280; return sem / 233280 }
+const UNO = []   // 1D: azules en las orillas (|x| > 1.5), grises en medio
+for (let i = 0; i < 40; i++) { const x = -3 + 6 * rnd(); UNO.push([x, Math.abs(x) > 1.5 ? 1 : 0]) }
+const DOS = []   // 2D: grises adentro (r < 1), azules en el anillo (1.6 < r < 2.4)
+for (let i = 0; i < 70; i++) { const a = 2 * Math.PI * rnd(); const adentro = i % 2 === 0
+  const r = adentro ? 0.2 + 0.8 * rnd() : 1.6 + 0.8 * rnd(); DOS.push([r * Math.cos(a), r * Math.sin(a), adentro ? 0 : 1]) }
+const st = { modo: 1, transf: false, corte: 0.5 }
+const TEXTO = {
+  1: ['Las <b>azules</b> están en las dos orillas y las <b>grises</b> en medio. Mueve el corte: con una sola columna $x$, ningún corte las separa.',
+      'Con la columna nueva $x^2$, cada punto sube a su altura $x^2$. Ahora un corte <b>horizontal</b> sí separa: los de las orillas quedaron arriba.'],
+  2: ['Grises adentro, azules en un anillo. Ninguna recta en $(x_1, x_2)$ los separa.',
+      'Con la columna nueva $x_1^2 + x_2^2$ (la distancia al centro, al cuadrado), un solo corte separa: un círculo en la gráfica original.']
+}
+function acierta() {
+  if (st.modo === 1) {
+    if (!st.transf) { const c = -3 + 6 * st.corte   // mejor de "azul a la derecha" o "azul a la izquierda"
+      const a = UNO.filter(([x, y]) => (x > c ? 1 : 0) === y).length, b = UNO.filter(([x, y]) => (x < c ? 1 : 0) === y).length
+      return Math.max(a, b) / UNO.length }
+    const c = 9 * st.corte; return UNO.filter(([x, y]) => (x * x > c ? 1 : 0) === y).length / UNO.length
+  }
+  if (!st.transf) { const c = -3 + 6 * st.corte
+    const a = DOS.filter(([x, , y]) => (x > c ? 1 : 0) === y).length, b = DOS.filter(([x, , y]) => (x < c ? 1 : 0) === y).length
+    return Math.max(a, b) / DOS.length }
+  const c = 6 * st.corte; return DOS.filter(([x1, x2, y]) => (x1 * x1 + x2 * x2 > c ? 1 : 0) === y).length / DOS.length
+}
+const col = (y) => (y ? '#0847c4' : '#9a9a9a')
+function pintar() {
+  const t = TEXTO[st.modo][st.transf ? 1 : 0]
+  const el = document.getElementById('texto'); el.innerHTML = t
+  if (window.renderMathInElement) renderMathInElement(el, { delimiters: [{ left: '$', right: '$', display: false }] })
+  document.getElementById('transf').textContent = st.transf ? 'Quitar la columna nueva' : (st.modo === 1 ? 'Agregar la columna x²' : 'Agregar la columna x₁² + x₂²')
+  document.getElementById('acc').textContent = Math.round(100 * acierta()) + ' %'
+  let h = '', X0 = 60, Y0 = 470, W = 500, H = 420
+  if (st.modo === 1) {
+    const px = (x) => X0 + (x + 3) / 6 * W
+    if (!st.transf) {
+      const c = -3 + 6 * st.corte
+      document.getElementById('etqcorte').textContent = 'corte vertical en x = ' + c.toFixed(2)
+      h += `<line x1="${X0}" y1="300" x2="${X0 + W}" y2="300" stroke="#1a1a1a" stroke-width="2"/>`
+      UNO.forEach(([x, y]) => { h += `<circle cx="${px(x)}" cy="300" r="10" fill="${col(y)}" stroke="#1a1a1a" stroke-width="1.5"/>` })
+      h += `<line x1="${px(c)}" y1="120" x2="${px(c)}" y2="460" stroke="#fb2c36" stroke-width="4"/>`
+      h += `<text x="${X0 + W / 2}" y="${Y0 + 35}" text-anchor="middle" font-family="JetBrains Mono" font-size="15">x</text>`
+    } else {
+      const c = 9 * st.corte, py = (v) => Y0 - v / 9 * H
+      document.getElementById('etqcorte').textContent = 'corte horizontal en x² = ' + c.toFixed(2)
+      h += `<rect x="${X0}" y="${Y0 - H}" width="${W}" height="${H}" fill="none" stroke="#1a1a1a" stroke-width="2"/>`
+      UNO.forEach(([x, y]) => { h += `<circle cx="${px(x)}" cy="${py(x * x)}" r="10" fill="${col(y)}" stroke="#1a1a1a" stroke-width="1.5"/>` })
+      h += `<line x1="${X0}" y1="${py(c)}" x2="${X0 + W}" y2="${py(c)}" stroke="#fb2c36" stroke-width="4"/>`
+      h += `<text x="${X0 + W / 2}" y="${Y0 + 35}" text-anchor="middle" font-family="JetBrains Mono" font-size="15">x</text>`
+      h += `<text x="${X0 - 12}" y="${Y0 - H / 2}" text-anchor="end" font-family="JetBrains Mono" font-size="15">x²</text>`
+    }
+  } else {
+    const px = (v) => X0 + (v + 3) / 6 * W, py = (v) => Y0 - (v + 3) / 6 * H
+    h += `<rect x="${X0}" y="${Y0 - H}" width="${W}" height="${H}" fill="none" stroke="#1a1a1a" stroke-width="2"/>`
+    DOS.forEach(([a, b, y]) => { h += `<circle cx="${px(a)}" cy="${py(b)}" r="9" fill="${col(y)}" stroke="#1a1a1a" stroke-width="1.5"/>` })
+    if (!st.transf) { const c = -3 + 6 * st.corte
+      document.getElementById('etqcorte').textContent = 'una recta: x₁ = ' + c.toFixed(2)
+      h += `<line x1="${px(c)}" y1="${Y0 - H}" x2="${px(c)}" y2="${Y0}" stroke="#fb2c36" stroke-width="4"/>` }
+    else { const c = 6 * st.corte
+      document.getElementById('etqcorte').textContent = 'corte en x₁² + x₂² = ' + c.toFixed(2) + ' (un círculo)'
+      h += `<ellipse cx="${px(0)}" cy="${py(0)}" rx="${Math.sqrt(c) / 6 * W}" ry="${Math.sqrt(c) / 6 * H}" fill="none" stroke="#fb2c36" stroke-width="4"/>` }
+    h += `<text x="${X0 + W / 2}" y="${Y0 + 35}" text-anchor="middle" font-family="JetBrains Mono" font-size="15">x₁</text>`
+    h += `<text x="${X0 - 12}" y="${Y0 - H / 2}" text-anchor="end" font-family="JetBrains Mono" font-size="15">x₂</text>`
+  }
+  document.getElementById('g').innerHTML = h
+}
+document.getElementById('corte').oninput = (e) => { st.corte = e.target.value / 100; pintar() }
+document.getElementById('transf').onclick = () => { st.transf = !st.transf; pintar() }
+document.querySelectorAll('#modos button').forEach((bt) => bt.onclick = () => {
+  st.modo = Number(bt.dataset.m); st.transf = false
+  document.querySelectorAll('#modos button').forEach((o) => o.classList.toggle('on', o === bt)); pintar() })
+window.addEventListener('load', pintar)
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js" onload="pintar()"></script>
+</body>
+</html>
