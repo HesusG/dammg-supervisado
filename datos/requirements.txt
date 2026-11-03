@@ -1,0 +1,13 @@
+# Fuente única de versiones (R3-2). La usan:
+#   - la celda L0 de cada notebook (scripts/build_notebooks.py la copia al generar),
+#   - la imagen del evaluador (grader/Dockerfile).
+# Si cambias algo aquí, vuelve a correr scripts/build_notebooks.py y reconstruye la imagen.
+numpy==2.5.4
+pandas==3.0.6
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+seaborn==0.13.2
+ipywidgets==8.1.9
+pyarrow==26.0.0
+pytest==9.1.1

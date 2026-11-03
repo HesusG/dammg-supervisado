@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoja de trabajo: deducir o inducir</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
+<style>
+:root { --tinta: #1a1a1a; --papel: #ffffff; --nota: #fff3c4; --datos: #dbe8ff; --regla: #e1f3d8; --linea: #1a1a1a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; line-height: 1.45; }
+main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+.cab { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid var(--linea); padding-bottom: 6px; }
+h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 34px; margin: 14px 0 4px; }
+h2 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 20px; margin: 26px 0 8px; }
+.cuadro { border: 2px solid var(--linea); padding: 10px 14px; margin: 10px 0; }
+.dos { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.dos .katex-display { margin: 0.4em 0; }
+@media screen { .dos .katex-display { overflow-x: auto; overflow-y: hidden; } }
+.ded { background: var(--regla); }
+.ind { background: var(--datos); }
+.nota { background: var(--nota); }
+.dos h3, .caso h3 { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; margin: 0 0 6px; }
+.caso { border: 2px solid var(--linea); padding: 10px 14px; margin: 12px 0; break-inside: avoid; }
+.campos { display: grid; grid-template-columns: 120px 1fr; gap: 4px 10px; margin-top: 8px; }
+.campos span:nth-child(odd) { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; padding-top: 3px; }
+.campos span:nth-child(even) { border-bottom: 1px solid #999; min-height: 24px; }
+.campos .lleno { border-bottom: none; }
+.marca { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-top: 8px; }
+.roles { padding-left: 20px; margin: 6px 0; }
+.small { font-size: 13px; }
+@media (max-width: 600px) { .dos { grid-template-columns: 1fr; } .campos { grid-template-columns: 1fr; } }
+@media print { main { padding: 0; } h2 { break-after: avoid; } }
+</style>
+</head>
+<body>
+<main>
+
+<div class="cab"><span>DAMMG Módulo VI, Sesión 1</span><span>VI.1 Aprendizaje inductivo y deductivo</span></div>
+
+<h1>Hoja de trabajo: ¿deducir o inducir?</h1>
+
+<div class="cuadro nota">
+<strong>En la sala, 10 minutos, de 3 o 4 personas.</strong> Repártanse tres papeles:
+<ul class="roles">
+<li><strong>Quien lee:</strong> lee cada caso en voz alta.</li>
+<li><strong>Quien duda:</strong> en cada caso pregunta "¿la flecha va de la regla al caso o del caso a la regla?".</li>
+<li><strong>Quien escribe:</strong> anota y, al volver, manda las respuestas al chat.</li>
+</ul>
+En cada caso solo decidan si es <strong>deducir o inducir</strong>. No se califica. Anoten en papel o en un documento compartido: esta hoja no guarda lo que escriben. Si no les da tiempo de todo, hagan los casos 1, 5 y 6.
+</div>
+
+<h2>Las dos formas, en una línea cada una</h2>
+
+<div class="dos">
+<div class="cuadro ded">
+<h3>Deducir</h3>
+$$\forall x:\ P(x) \Rightarrow Q(x), \qquad P(a) \qquad \vdash \qquad Q(a)$$
+<p class="small">Se lee: "todo lo que cumple P cumple Q; a cumple P; por lo tanto, a cumple Q". Va de una regla general a un caso. Si la regla es cierta y el caso la cumple, la conclusión es segura.</p>
+</div>
+<div class="cuadro ind">
+<h3>Inducir</h3>
+$$P(a_1) \wedge Q(a_1),\ \dots,\ P(a_n) \wedge Q(a_n) \qquad \leadsto \qquad \forall x:\ P(x) \Rightarrow Q(x)$$
+<p class="small">Se lee: "vi n casos que cumplen P y también Q; propongo que todos los que cumplen P cumplen Q". Va de casos a una regla general. El caso siguiente puede no cumplirla.</p>
+</div>
+</div>
+
+<p class="small">$\vdash$ se lee "se deduce" y $\leadsto$ "propongo". Las letras son lo de menos: lo que importa es si la flecha va de la regla al caso o del caso a la regla.</p>
+
+<h2>Un ejemplo resuelto</h2>
+
+<div class="caso">
+<h3>Caso 0. La tortillería con letrero</h3>
+El letrero dice: "el kilo, 25 pesos". Llevas 4 kilos y pagas 100 pesos.
+<p class="marca">Es: <strong>deducir</strong></p>
+</div>
+
+<h2>Sus casos</h2>
+
+<div class="caso">
+<h3>Caso 1. Física: el péndulo</h3>
+Mides cuatro péndulos (longitud $L$, periodo $T$): $(0.25\ \text{m},\ 1.0\ \text{s})$, $(1\ \text{m},\ 2.0\ \text{s})$, $(2.25\ \text{m},\ 3.0\ \text{s})$, $(4\ \text{m},\ 4.0\ \text{s})$. Notas que $T = 2\sqrt{L}$ en los cuatro y concluyes que así es para cualquier péndulo.
+<p class="marca">Es: ☐ deducir &nbsp; ☐ inducir</p>
+</div>
+
+<div class="caso">
+<h3>Caso 2. Física: la fórmula del libro</h3>
+El libro dice $T = 2\pi\sqrt{L/g}$, con $g = 9.8\ \text{m/s}^2$. Tu péndulo mide $L = 1$ m. Calculas $T \approx 2.0$ s.
+<p class="marca">Es: ☐ deducir &nbsp; ☐ inducir</p>
+</div>
+
+<div class="caso">
+<h3>Caso 3. Cocina: la receta del arroz</h3>
+La receta dice: "por cada taza de arroz, dos tazas de agua". Vas a hacer 3 tazas de arroz, así que pones 6 de agua.
+<p class="marca">Es: ☐ deducir &nbsp; ☐ inducir</p>
+</div>
+
+<div class="caso">
+<h3>Caso 4. MiBici: lunes contra domingo</h3>
+En las últimas 8 semanas, a las 8 a.m., en una estación cerca de oficinas salieron más bicis cada lunes que cada domingo. Concluyes: "los lunes a las 8 salen más bicis que los domingos".
+<p class="marca">Es: ☐ deducir &nbsp; ☐ inducir</p>
+</div>
+
+<div class="caso">
+<h3>Caso 5. Matemáticas: los impares</h3>
+$1 = 1$, &nbsp; $1 + 3 = 4$, &nbsp; $1 + 3 + 5 = 9$, &nbsp; $1 + 3 + 5 + 7 = 16$.
+<p>(a) Al ver esto, conjeturas que $\displaystyle\sum_{k=1}^{n} (2k - 1) = n^2$ para toda $n$.<br>
+(b) Después lo demuestras por inducción matemática: vale para $n = 1$, y si vale para $n$, vale para $n + 1$.</p>
+<p class="marca">(a) es: ☐ deducir &nbsp; ☐ inducir &nbsp;&nbsp;&nbsp; (b) es: ☐ deducir &nbsp; ☐ inducir</p>
+</div>
+
+<div class="caso">
+<h3>Caso 6. Computación: el filtro de spam</h3>
+(a) Un programa revisa 10 mil correos que la gente ya marcó como spam o no spam, y ajusta una regla que los separa.<br>
+(b) Ya ajustada, la regla llega a tu bandeja y marca como spam un correo que nadie había visto.
+<p class="marca">(a) es: ☐ deducir &nbsp; ☐ inducir &nbsp;&nbsp;&nbsp; (b) es: ☐ deducir &nbsp; ☐ inducir</p>
+<p class="small">¿En cuál de las dos partes está el aprendizaje?</p>
+</div>
+
+<h2>Al volver a la sala principal</h2>
+
+<div class="cuadro nota">
+Quien escribe manda al chat, cuando el profesor diga "¡ya!", <strong>una sola línea</strong>:
+<p style="font-family: 'JetBrains Mono', monospace; font-size: 13px">5a: ___ 5b: ___ 6a: ___ 6b: ___</p>
+</div>
+
+</main>
+</body>
+</html>

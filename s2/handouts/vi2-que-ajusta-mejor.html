@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hoja de trabajo: ¿qué ajusta mejor?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+  onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]})"></script>
+<style>
+:root { --tinta: #1a1a1a; --papel: #ffffff; --nota: #fff3c4; --datos: #dbe8ff; --regla: #e1f3d8; --linea: #1a1a1a; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--papel); color: var(--tinta); font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; line-height: 1.45; }
+main { max-width: 820px; margin: 0 auto; padding: 24px 16px 48px; }
+.cab { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; border-bottom: 2px solid var(--linea); padding-bottom: 6px; }
+h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 34px; margin: 14px 0 4px; }
+h2 { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 20px; margin: 26px 0 8px; }
+.cuadro { border: 2px solid var(--linea); padding: 10px 14px; margin: 10px 0; }
+.dos { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.dos .katex-display { margin: 0.4em 0; }
+@media screen { .dos .katex-display { overflow-x: auto; overflow-y: hidden; } }
+.ded { background: var(--regla); }
+.ind { background: var(--datos); }
+.nota { background: var(--nota); }
+.dos h3, .caso h3 { font-family: 'JetBrains Mono', monospace; font-size: 13px; text-transform: uppercase; margin: 0 0 6px; }
+.caso { border: 2px solid var(--linea); padding: 10px 14px; margin: 12px 0; break-inside: avoid; }
+.campos { display: grid; grid-template-columns: 120px 1fr; gap: 4px 10px; margin-top: 8px; }
+.campos span:nth-child(odd) { font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; padding-top: 3px; }
+.campos span:nth-child(even) { border-bottom: 1px solid #999; min-height: 24px; }
+.campos .lleno { border-bottom: none; }
+.marca { font-family: 'JetBrains Mono', monospace; font-size: 13px; margin-top: 8px; }
+.roles { padding-left: 20px; margin: 6px 0; }
+.small { font-size: 13px; }
+@media (max-width: 600px) { .dos { grid-template-columns: 1fr; } .campos { grid-template-columns: 1fr; } }
+@media print { main { padding: 0; } h2 { break-after: avoid; } }
+.fig { width: 100%; border: 1.5px solid var(--linea); margin: 8px 0; }
+.fig.media { max-width: 420px; display: block; }
+</style>
+
+<style>
+table.t { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 14px; }
+table.t th, table.t td { border: 1.5px solid var(--linea); padding: 5px 8px; text-align: center; }
+table.t th { background: var(--tinta); color: var(--papel); font-family: 'JetBrains Mono', monospace; font-size: 12px; text-transform: uppercase; }
+table.t td.vacio { min-width: 70px; }
+.cuadricula { width: 100%; max-width: 560px; height: 260px; border: 2px solid var(--linea); margin: 8px 0;
+  background-image: linear-gradient(#bbb 1px, transparent 1px), linear-gradient(90deg, #bbb 1px, transparent 1px); background-size: 28px 26px; position: relative; }
+.ejes { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+.fig { width: 100%; border: 1.5px solid var(--linea); margin: 8px 0; }
+.fig.media { max-width: 420px; display: block; }
+.liga { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; word-break: break-all; background: #f4f4f4; border: 1px solid #999; padding: 6px 8px; margin: 6px 0; user-select: all; }
+</style>
+</head>
+<body>
+<main>
+
+<div class="cab"><span>DAMMG Módulo VI, Sesión 1</span><span>VI.2 Regresión: métricas y polinomios</span></div>
+
+<h1>Hoja de trabajo: ¿qué ajusta mejor?</h1>
+
+<div class="cuadro nota">
+<strong>En la sala, 10 minutos, de 3 o 4 personas.</strong> Una persona lee, otra anota y otra manda la línea al chat al volver. Aquí no hay que calcular: solo <strong>mirar las gráficas</strong> y comparar. No se califica.
+</div>
+
+<div class="cuadro">
+<strong>¿Prefieren hacerlo en Python?</strong> Las mismas gráficas, en Colab:
+<p class="liga">https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/salas/S1_que_ajusta.ipynb</p>
+</div>
+
+<h2>Las tres varas, en una línea</h2>
+<div class="cuadro">
+<p><strong>MAE:</strong> cuánto se equivoca, en promedio. <strong>RMSE:</strong> igual, pero los errores grandes pesan más. <strong>R²:</strong> qué tanto mejora contra decir siempre el promedio (0 = igual que el promedio, 1 = perfecto).</p>
+</div>
+
+<h2>1. Tres datos, una recta en cada uno</h2>
+<img class="fig" src="https://hesusg.github.io/dammg-supervisado/s1/figs/hoja_tres_datos.png" alt="Tres nubes con su recta: MiBici, autos (potencia contra rendimiento) y restaurante (cuenta contra propina), cada una con MAE, RMSE y R²">
+<div class="caso">
+<p><strong>¿En cuál la recta NO sigue la forma de los puntos?</strong></p>
+<p><strong>Ahora miren el R² de cada una: ¿el más alto es el que mejor se ve?</strong></p>
+</div>
+
+<h2>2. Con una curva</h2>
+<img class="fig media" src="https://hesusg.github.io/dammg-supervisado/s1/figs/hoja_mpg_grado2.png" alt="Los autos con un polinomio de grado 2: MAE 3.25, RMSE 4.36, R² 0.69">
+<div class="caso">
+<p><strong>Los autos, ahora con una curva (grado 2). ¿Se ve mejor que la recta? ¿Bajaron los errores?</strong></p>
+</div>
+
+<h2>3. Mismos números, ¿mismos datos?</h2>
+<img class="fig" src="https://hesusg.github.io/dammg-supervisado/s1/figs/hoja_anscombe.png" alt="Cuatro conjuntos de Anscombe con la misma recta, el mismo RMSE de 1.12 y el mismo R² de 0.67, pero formas muy distintas">
+<div class="caso">
+<p>Los cuatro tienen la misma recta y los mismos números (R² 0.67, RMSE 1.12).</p>
+<p><strong>¿Se ven igual? ¿En cuál usarían una recta?</strong></p>
+</div>
+
+<h2>Al volver a la sala principal</h2>
+<div class="cuadro nota">
+Quien manda al chat, cuando el profesor diga "ya", <strong>una sola línea</strong>:
+<p class="liga">la recta no sigue la forma en: __ / con la curva, los errores: __ / Anscombe con recta buena: __</p>
+</div>
+
+<p class="small">Datos: MiBici (Gobierno de Jalisco); autos y restaurante, de los datos de ejemplo de seaborn; Anscombe, F. J. (1973). Graphs in statistical analysis. <em>The American Statistician, 27</em>(1), 17–21.</p>
+
+</main>
+</body>
+</html>

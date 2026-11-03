@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El perceptrón, paso a paso</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+:root {
+  --papel: #fdfdfd; --papel2: #f2f2f2; --tinta: #1a1a1a; --tinta2: #575757;
+  --w: #0847c4; --error: #fb2c36; --amarillo: #ffcd42; --verde: #2e7d5b; --nota: #fff3c4;
+  --borde: 2.5px solid var(--tinta); --sombra: 5px 5px 0 var(--tinta);
+  --display: 'Oswald', 'Arial Narrow', sans-serif; --texto: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--papel); color: var(--tinta); font-family: var(--texto); }
+.marco { min-height: 100vh; display: grid; grid-template-columns: 42fr 58fr; gap: 22px; padding: 18px 22px; }
+h1 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.3rem, 2.4vw, 2.1rem); line-height: 1.05;
+  display: inline-block; margin: 0 0 14px; padding: 6px 14px; border: var(--borde); box-shadow: var(--sombra); }
+.izq { font-size: clamp(0.95rem, 1.4vw, 1.25rem); line-height: 1.45; }
+.formula { border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 6px 0; overflow-x: auto; }
+.palabras { background: var(--nota); border: 1.25px solid var(--tinta); padding: 6px 10px; margin: 6px 0; }
+.estado { font-family: var(--mono); font-size: 0.95em; border: 1.25px solid var(--tinta); padding: 8px 12px; margin: 10px 0; min-height: 4.5em; }
+.ok { color: var(--verde); font-weight: 700; } .mal { color: var(--error); font-weight: 700; }
+.botones { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+button { font: 600 0.95rem var(--texto); padding: 7px 12px; border: var(--borde); background: var(--papel); cursor: pointer; box-shadow: 3px 3px 0 var(--tinta); }
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+button.on { background: var(--tinta); color: var(--papel); }
+.panel { border: var(--borde); box-shadow: var(--sombra); position: relative; }
+.panel svg { width: 100%; height: 100%; display: block; }
+.mono { font-family: var(--mono); }
+@media (max-width: 820px) { .marco { grid-template-columns: 1fr; } .panel { height: 360px; } }
+</style>
+</head>
+<body>
+<div class="marco">
+  <section class="izq">
+    <h1>El perceptrón, paso a paso</h1>
+    <div class="formula" id="f1"></div>
+    <div class="palabras">Predice 1 si el punto cae del lado azul de la recta. Si <strong>acierta</strong>, <span class="mono">y − ŷ = 0</span> y no se mueve. Si <strong>se equivoca</strong>, mueve la recta hacia ese punto, un paso de tamaño <span class="mono">η</span>.</div>
+    <div class="formula" id="f2"></div>
+    <div class="botones">
+      <button id="paso">Un paso</button>
+      <button id="vuelta">Una vuelta completa</button>
+      <button id="reinicio">Reiniciar</button>
+    </div>
+    <div class="botones" id="etas">η:
+      <button data-eta="0.1">0.1</button><button data-eta="0.5" class="on">0.5</button><button data-eta="1">1</button>
+    </div>
+    <div class="estado" id="estado">Presiona "Un paso": el perceptrón revisa los puntos uno por uno.</div>
+    <div class="palabras">En scikit-learn: <span class="mono">Perceptron(eta0=η, max_iter=…)</span>. A diferencia de <span class="mono">LogisticRegression</span>, no da una probabilidad: solo dice 0 o 1.</div>
+  </section>
+  <section class="panel"><svg id="g" viewBox="0 0 600 520" preserveAspectRatio="xMidYMid meet"></svg></section>
+</div>
+<script>
+// Puntos (x1, x2) en [0, 10] y su clase: 1 = desbalance (azul), 0 = sin desbalance (gris). Separables por una recta.
+const PUNTOS = [
+  [7.5, 8.0, 1], [8.5, 6.0, 1], [6.0, 7.5, 1], [9.0, 8.5, 1], [7.0, 5.5, 1],
+  [2.0, 3.0, 0], [3.5, 1.5, 0], [1.5, 6.0, 0], [4.0, 4.0, 0], [5.0, 2.0, 0],
+]
+const st = { w: [-1, 1], b: 0, eta: 0.5, k: 0, ultimo: null }
+const X0 = 60, Y0 = 470, ESC = 50   // 10 unidades = 500 px
+const px = (x) => X0 + x * ESC, py = (y) => Y0 - y * ESC
+const z = (p) => st.w[0] * p[0] + st.w[1] * p[1] + st.b
+const pred = (p) => (z(p) >= 0 ? 1 : 0)
+
+function recta() {
+  // puntos de la recta w0·x1 + w1·x2 + b = 0 dentro del cuadro [0,10]²
+  const [a, c] = st.w, b = st.b, pts = []
+  if (Math.abs(c) > 1e-9) for (const x of [0, 10]) { const y = -(a * x + b) / c; pts.push([x, y]) }
+  if (Math.abs(a) > 1e-9) for (const y of [0, 10]) { const x = -(c * y + b) / a; pts.push([x, y]) }
+  const dentro = pts.filter(([x, y]) => x >= -1e-6 && x <= 10 + 1e-6 && y >= -1e-6 && y <= 10 + 1e-6)
+  return dentro.length >= 2 ? dentro.slice(0, 2) : null
+}
+
+function pintar() {
+  const g = document.getElementById('g')
+  let h = ''
+  // sombreado del lado que predice 1
+  for (let i = 0; i < 20; i++) for (let j = 0; j < 20; j++) {
+    const p = [i / 2 + 0.25, j / 2 + 0.25]
+    if (pred(p)) h += `<rect x="${px(i / 2)}" y="${py(j / 2 + 0.5)}" width="25" height="25" fill="#dbe8ff"/>`
+  }
+  h += `<rect x="${X0}" y="${py(10)}" width="500" height="500" fill="none" stroke="#1a1a1a" stroke-width="2"/>`
+  h += `<text x="${X0 + 250}" y="${Y0 + 40}" text-anchor="middle" font-family="JetBrains Mono" font-size="16">x₁</text>`
+  h += `<text x="${X0 - 30}" y="${py(5)}" font-family="JetBrains Mono" font-size="16">x₂</text>`
+  const r = recta()
+  if (r) h += `<line x1="${px(r[0][0])}" y1="${py(r[0][1])}" x2="${px(r[1][0])}" y2="${py(r[1][1])}" stroke="#0847c4" stroke-width="4"/>`
+  PUNTOS.forEach((p, i) => {
+    const bien = pred(p) === p[2]
+    const col = p[2] ? '#0847c4' : '#9a9a9a'
+    const marca = i === st.ultimo ? `<circle cx="${px(p[0])}" cy="${py(p[1])}" r="20" fill="none" stroke="#ffcd42" stroke-width="5"/>` : ''
+    h += marca + `<circle cx="${px(p[0])}" cy="${py(p[1])}" r="11" fill="${col}" stroke="${bien ? '#1a1a1a' : '#fb2c36'}" stroke-width="${bien ? 2 : 5}"/>`
+  })
+  const errores = PUNTOS.filter((p) => pred(p) !== p[2]).length
+  h += `<text x="12" y="22" font-family="JetBrains Mono" font-size="15">w = (${st.w.map((v) => v.toFixed(2)).join(', ')}), b = ${st.b.toFixed(2)}   mal clasificados: ${errores}</text>`
+  g.innerHTML = h
+}
+
+function unPaso() {
+  const i = st.k % PUNTOS.length, p = PUNTOS[i]
+  const yh = pred(p), d = p[2] - yh
+  st.ultimo = i
+  let msg = `Punto ${i + 1}: x = (${p[0]}, ${p[1]}), y = ${p[2]}, ŷ = ${yh}. `
+  if (d === 0) msg += '<span class="ok">Acierta: no se mueve.</span>'
+  else {
+    st.w = [st.w[0] + st.eta * d * p[0], st.w[1] + st.eta * d * p[1]]
+    st.b = st.b + st.eta * d
+    msg += `<span class="mal">Se equivoca: y − ŷ = ${d}.</span> La recta se mueve ${d > 0 ? 'hacia' : 'lejos de'} el punto.`
+  }
+  st.k++
+  document.getElementById('estado').innerHTML = msg
+  pintar()
+}
+
+document.getElementById('paso').onclick = unPaso
+document.getElementById('vuelta').onclick = () => { for (let i = 0; i < PUNTOS.length; i++) unPaso() }
+document.getElementById('reinicio').onclick = () => {
+  Object.assign(st, { w: [-1, 1], b: 0, k: 0, ultimo: null })
+  document.getElementById('estado').textContent = 'De vuelta al inicio.'
+  pintar()
+}
+document.querySelectorAll('#etas button').forEach((bt) => bt.onclick = () => {
+  st.eta = Number(bt.dataset.eta)
+  document.querySelectorAll('#etas button').forEach((o) => o.classList.toggle('on', o === bt))
+})
+window.addEventListener('load', () => {
+  katex.render('\\hat y = \\begin{cases}1 & \\text{si } w_1x_1 + w_2x_2 + b \\ge 0\\\\ 0 & \\text{si no}\\end{cases}', document.getElementById('f1'), { displayMode: true })
+  katex.render('w \\leftarrow w + \\eta\\,(y - \\hat y)\\,x \\qquad b \\leftarrow b + \\eta\\,(y - \\hat y)', document.getElementById('f2'), { displayMode: true })
+  pintar()
+})
+</script>
+</body>
+</html>

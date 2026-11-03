@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El precio de las tortillas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=JetBrains+Mono:wght@400;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<style>
+:root {
+  --papel: #fdfdfd; --papel2: #f2f2f2; --tinta: #1a1a1a; --tinta2: #575757;
+  --w: #0847c4; --error: #fb2c36; --amarillo: #ffcd42; --verde: #2e7d5b;
+  --nota: #fff3c4; --datos: #dbe8ff; --modelo: #e1f3d8; --perdida: #ffe0dc;
+  --borde: 2.5px solid var(--tinta); --sombra: 5px 5px 0 var(--tinta);
+  --display: 'Oswald', 'Arial Narrow', sans-serif; --texto: 'IBM Plex Sans', system-ui, sans-serif; --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--papel); color: var(--tinta); font-family: var(--texto); }
+.marco { height: 100vh; display: grid; grid-template-rows: 1fr auto; padding: 18px 22px 12px; gap: 12px; }
+.escena { display: grid; grid-template-columns: 40fr 60fr; gap: 22px; min-height: 0; }
+.izq { display: flex; flex-direction: column; min-height: 0; overflow: auto; padding-right: 4px; }
+h1 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.4rem, 2.6vw, 2.3rem); line-height: 1.05;
+  display: inline-block; align-self: flex-start; margin: 0 0 14px; padding: 6px 14px; border: var(--borde); box-shadow: var(--sombra); background: var(--papel); }
+.item { margin: 0 0 12px; }
+.item.nuevo { animation: entra 250ms ease-out; }
+.item { font-size: clamp(1rem, 1.55vw, 1.4rem); line-height: 1.45; }
+.item p { margin: 0 0 4px; }
+.formula { border: 1.25px solid var(--tinta); background: var(--papel); padding: 8px 12px; overflow-x: auto; }
+.formula .katex { font-size: 1.25em; }
+.palabras { background: var(--nota); border: 1.25px solid var(--tinta); padding: 6px 10px; margin-top: 6px; }
+.frase { font-weight: 700; font-size: clamp(1.1rem, 1.8vw, 1.55rem); }
+.w-val { color: var(--w); font-weight: 700; font-family: var(--mono); }
+.err-val { color: var(--error); font-weight: 700; font-family: var(--mono); }
+mark { background: var(--amarillo); padding: 0 0.15em; }
+table.t { border-collapse: collapse; font-size: 0.95em; }
+table.t th { background: var(--tinta); color: var(--papel); font-family: var(--mono); padding: 4px 10px; text-align: left; }
+table.t td { border: 1.25px solid var(--tinta); padding: 4px 10px; font-family: var(--mono); }
+table.t td.vacio { color: var(--tinta2); }
+.botones-paso { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0 10px; }
+button { font: 600 0.95rem var(--texto); padding: 7px 12px; border: var(--borde); background: var(--papel); color: var(--tinta); cursor: pointer; box-shadow: 3px 3px 0 var(--tinta); }
+button:hover { background: var(--papel2); }
+button:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+button.on { background: var(--tinta); color: var(--papel); }
+button:disabled { opacity: 0.35; cursor: default; }
+.der { display: grid; grid-template-rows: 1fr 1fr; gap: 14px; min-height: 0; }
+.der.una { grid-template-rows: 1fr; }
+.der.una #p-olla { display: none; }
+.panel { border: var(--borde); box-shadow: var(--sombra); background: var(--papel); position: relative; min-height: 0; }
+.panel .etq { position: absolute; top: 8px; left: 10px; font-family: var(--mono); font-weight: 700; font-size: 0.8rem; text-transform: uppercase; z-index: 1; }
+.panel svg { width: 100%; height: 100%; display: block; }
+.panel.apagado svg { opacity: 0.25; }
+.panel .aviso { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-weight: 700; font-size: 1.05rem; text-align: center; padding: 20px; }
+.panel.apagado .aviso { display: flex; }
+.barra { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; border-top: var(--borde); padding-top: 10px; }
+.barra .prog { font-family: var(--mono); font-weight: 700; }
+.control { display: flex; align-items: center; gap: 10px; margin-left: auto; font-family: var(--mono); }
+.control input { width: clamp(160px, 22vw, 340px); accent-color: var(--w); }
+.control.oculto { visibility: hidden; }
+.tortillas { width: 70%; max-width: 380px; margin: 10px auto; display: block; }
+@keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (max-width: 820px) {
+  .marco { height: auto; }
+  .escena { grid-template-columns: 1fr; }
+  .der { grid-template-rows: 300px 260px; }
+  .control { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+<div class="marco">
+  <div class="escena">
+    <section class="izq" id="izq" aria-live="polite"></section>
+    <section class="der">
+      <div class="panel" id="p-tickets"><span class="etq">Los tickets</span><svg id="g-tickets" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet"></svg></div>
+      <div class="panel" id="p-olla"><span class="etq">El costo para cada w</span><svg id="g-olla" viewBox="0 0 640 300" preserveAspectRatio="xMidYMid meet"></svg><div class="aviso">Aquí no hace falta: la regla ya la conocemos.</div></div>
+    </section>
+  </div>
+  <div class="barra">
+    <button id="ant" aria-label="Anterior">Anterior</button>
+    <button id="sig" aria-label="Siguiente">Siguiente</button>
+    <span class="prog" id="prog"></span>
+    <label class="control" id="control">w, precio por kilo: <span class="w-val" id="w-txt"></span> pesos
+      <input type="range" id="w" min="15" max="35" step="0.01" value="20" aria-label="Valor de w">
+    </label>
+  </div>
+</div>
+
+<script>
+// El precio de las tortillas: deducir con letrero, inducir con tickets, el costo como una olla.
+// Todos los números se calculan aquí; ver la sección "Números para verificar" del brief.
+
+const TICKETS = [[1, 25], [2, 51], [3, 74]]
+const RARO = [4, 140]
+// ?solo=1: un solo paso, sin navegación ni tabla (para incrustarlo en una slide sin adelantar respuestas)
+const SOLO = new URLSearchParams(location.search).has('solo')
+const st = { paso: 1, clic: 0, w: 20, raro: false, perdida: 'cuad', tabla: {}, rodando: false, alfa: 0.1, rastro: [], fuera: false }
+
+const datos = () => (st.raro ? [...TICKETS, RARO] : TICKETS)
+const n = () => datos().length
+const Lcuad = (w, D = datos()) => D.reduce((s, [x, y]) => s + (w * x - y) ** 2, 0) / (2 * D.length)  // J con 1/(2m), como en el deck
+const Labs = (w, D = datos()) => D.reduce((s, [x, y]) => s + Math.abs(y - w * x), 0) / D.length
+const L = (w) => (st.perdida === 'abs' ? Labs(w) : Lcuad(w))
+const wEstrella = (D = datos()) => D.reduce((s, [x, y]) => s + x * y, 0) / D.reduce((s, [x]) => s + x * x, 0)
+const wAbs = (D = datos()) => { // mediana ponderada de y/x con pesos x: minimiza la pérdida absoluta
+  const r = D.map(([x, y]) => [y / x, x]).sort((a, b) => a[0] - b[0])
+  const total = r.reduce((s, [, p]) => s + p, 0)
+  let acc = 0
+  for (const [v, p] of r) { acc += p; if (acc >= total / 2) return v }
+}
+const dJ = (w) => datos().reduce((s, [x, y]) => s + x * (w * x - y), 0) / n()  // derivada de J con 1/(2m)
+const CURV = () => datos().reduce((s, [x]) => s + x * x, 0) / n()  // a: la curvatura de la olla
+const f2 = (v) => v.toFixed(2)
+
+// ---------- texto con KaTeX ----------
+const tex = (s, display = true) => {
+  if (!window.katex) return `<code>${s}</code>`
+  return katex.renderToString(s, { displayMode: display, throwOnError: false, trust: true, strict: false })
+}
+const W = '\\textcolor{#0847c4}{w}'
+const wN = (v) => `\\textcolor{#0847c4}{${f2(v)}}`
+const formula = (t, palabras) => `<div class="formula">${tex(t)}</div>${palabras ? `<div class="palabras">${palabras}</div>` : ''}`
+
+// ---------- guion ----------
+// Cada paso: titulo, clics (función que regresa HTML, se muestran hasta st.clic) y vista (qué se dibuja).
+const PASOS = [
+  { titulo: 'El precio de las tortillas', vista: { olla: 'oculta' },
+    clics: [() => `${TORTILLAS}<p class="frase">Un kilo de tortillas. ¿Cuánto cuesta?</p>`] },
+
+  { titulo: 'Deducir: hay letrero', vista: { letrero: true, recta25: true, olla: 'apagada' },
+    clics: [
+      () => formula(`\\forall x,\\; y = 25x`, 'Para cualquier cantidad de kilos <i>x</i>, el precio es 25 por <i>x</i>.'),
+      () => formula(`x = 3 \\;\\Rightarrow\\; y = 25 \\cdot 3 = 75`, 'Si llevas 3 kilos, entonces pagas 75 pesos.'),
+      () => `<p class="frase">Si el letrero dice la verdad, la conclusión es segura. Pero no aprendimos nada nuevo.</p>`,
+    ] },
+
+  { titulo: 'Inducir: solo hay tickets', vista: { puntosPorClic: true, olla: 'oculta' },
+    clics: [
+      () => `<p>Ahora no hay letrero. Solo tenemos tickets.</p>`,
+      () => '', () => '',
+      () => formula(`\\mathcal{D} = \\{(1,25),\\,(2,51),\\,(3,74)\\}`, 'Nuestros datos: tres compras, cada una con sus kilos y lo que se pagó.'),
+    ] },
+
+  { titulo: 'El supuesto', vista: { puntos: true, recta: true, slider: true, olla: 'oculta' },
+    clics: [
+      () => formula(`\\mathcal{H} = \\{\\, h_{${W}}(x) = ${W}\\,x \\;:\\; ${W} \\in \\mathbb{R} \\,\\}`, 'Todas las rectas que salen del cero. Cada recta se distingue por un solo número, <span class="w-val">w</span>: los pesos que cuesta cada kilo. Escoger una regla es escoger <span class="w-val">w</span>. Muévelo con el control de abajo.'),
+      () => `<p class="frase">Suponemos que 0 kilos cuestan 0 pesos. Ese supuesto no viene de los datos: es nuestro <mark>sesgo inductivo</mark>.</p>`,
+    ] },
+
+  { titulo: 'El error de cada ticket', vista: { puntos: true, recta: true, residuos: true, slider: true, olla: 'oculta' },
+    clics: [
+      () => formula(`e^{(i)} = ${W}\\,x^{(i)} - y^{(i)}`, 'Lo que dice la recta menos lo que pagaste: predicción menos respuesta.'),
+      () => `<p>${datos().map(([x, y], i) => `<i>e</i><sub>${i + 1}</sub> = <span class="err-val">${f2(st.w * x - y)}</span>`).join(' &nbsp; ')}</p>`,
+      () => `<p class="frase">¿Cómo juntamos tres errores en un solo número?</p>`,
+    ] },
+
+  { titulo: 'El costo', vista: { puntos: true, recta: true, residuos: true, cuadrados: true, slider: true, olla: 'oculta' },
+    clics: [
+      () => formula(`(${W} x^{(i)} - y^{(i)})^2`, 'Cada error al cuadrado: el área de su cuadrado rojo.'),
+      () => formula(`\\sum_{i=1}^{3} (${W} x^{(i)} - y^{(i)})^2`, 'Sumamos las tres áreas.'),
+      () => formula(`J(${W}) = \\frac{1}{2 \\cdot 3}\\sum_{i=1}^{3} (${W} x^{(i)} - y^{(i)})^2`, 'Promediamos y dividimos entre 2: ese es el costo. El ½ no mueve el fondo, solo facilita la derivada.'),
+      () => formula(`J(${wN(st.w)}) = \\tfrac16\\big[(${wN(st.w)} - 25)^2 + (2 \\cdot ${wN(st.w)} - 51)^2 + (3 \\cdot ${wN(st.w)} - 74)^2\\big] = ${f2(Lcuad(st.w, TICKETS))}`),
+    ] },
+
+  { titulo: 'El costo para cada w', vista: { puntos: true, recta: true, residuos: true, cuadrados: true, slider: true, olla: 'on', tabla: true },
+    clics: [
+      () => `<p>Cada <span class="w-val">w</span> tiene su costo. Juntos dibujan una olla. Mueve el control y pasa por 20, 25 y 30.</p>${tablaOlla()}`,
+      () => `<p class="frase">Aprender es buscar el fondo de la olla.</p>`,
+    ] },
+
+  { titulo: 'El mínimo del costo', vista: { puntos: true, recta: true, residuos: true, slider: true, olla: 'on', tangente: true },
+    clics: [
+      () => formula(`\\frac{dJ}{d${W}} = \\frac{1}{m}\\sum_{i} x^{(i)}\\,(${W} x^{(i)} - y^{(i)}) = 0`, 'En el fondo la olla está plana: la pendiente vale cero.'),
+      () => formula(`${W}^{*} = \\frac{\\sum_i x^{(i)} y^{(i)}}{\\sum_i (x^{(i)})^2} = \\frac{25 + 102 + 222}{14} = \\frac{349}{14} \\approx 24.93`, 'Despejamos y sale el mejor precio por kilo para estos tickets. Es la ecuación normal con una sola variable: el fondo de un salto, sin rodar.'),
+      () => `<div class="botones-paso"><button id="rodar">Rodar hasta el fondo</button></div><p>La bolita baja paso a paso siguiendo la pendiente. Eso es el descenso de gradiente.</p>`,
+    ] },
+
+  { titulo: 'Bajar por la olla', vista: { puntos: true, recta: true, slider: true, olla: 'on', tangente: true, rastro: true },
+    clics: [
+      () => `<p>La pendiente dice hacia dónde sube el costo; damos un paso al revés. <span class="w-val">α</span> es el tamaño del paso.</p>${formula(`${W} \\leftarrow ${W} - \\alpha \\cdot \\text{pendiente}`)}`,
+      () => `<div class="botones-paso">${[0.1, 0.4, 0.45].map((a) => `<button data-alfa="${a}">α = ${a}</button>`).join('')}</div>
+             <div class="botones-paso"><button id="unpaso">Un paso</button><button id="rodar2">Rodar</button><button id="reini">Empezar en w = 20</button></div>
+             <p id="estado-gd">${estadoGD()}</p>`,
+      () => `<p class="frase">Con estos tickets la olla aguanta pasos hasta α = 2/a ≈ ${f2(2 / CURV())}. Más grande, te pasas del fondo y cada brinco es mayor.</p>`,
+    ] },
+
+  { titulo: 'El mejor w no es el precio real', vista: { puntos: true, recta: true, residuos: true, slider: true, olla: 'on', fijaW: 'estrella' },
+    clics: [
+      () => formula(`J(24.93) \\approx ${Lcuad(wEstrella(TICKETS), TICKETS).toFixed(3)} \\;<\\; J(25) \\approx ${Lcuad(25, TICKETS).toFixed(3)}`, 'La recta de 24.93 se equivoca menos con estos tickets que la del precio real.'),
+      () => `<p class="frase">La inducción encuentra la mejor regla para lo que vio, no necesariamente la verdadera.</p>`,
+    ] },
+
+  { titulo: 'Un ticket nuevo', vista: { puntos: true, recta: true, fantasma: true, slider: true, olla: 'on', fijaW: 'estrella' },
+    clics: [
+      () => formula(`h_{${W}^*}(5) = 24.93 \\cdot 5 \\approx ${f2(wEstrella(TICKETS) * 5)}`, 'Un cliente nuevo lleva 5 kilos. Predecimos casi 125, el precio real.'),
+      () => `<p class="frase">Probablemente correcto, aproximadamente correcto. Nunca seguro.</p>`,
+    ] },
+
+  { titulo: 'Otra forma de medir el error', vista: { puntos: true, recta: true, residuos: true, slider: true, olla: 'on', opciones: true },
+    clics: [
+      () => `<div class="botones-paso"><button data-perdida="cuad">Cuadrática</button><button data-perdida="abs">Absoluta</button><button id="raro">Agregar ticket raro</button><button id="mejor">Ir al mejor w</button></div>
+             ${formula(st.perdida === 'abs' ? `J_{\\text{abs}}(${W}) = \\frac{1}{m}\\sum_i |${W} x^{(i)} - y^{(i)}|` : `J(${W}) = \\frac{1}{2m}\\sum_i (${W} x^{(i)} - y^{(i)})^2`)}`,
+      () => `<p>Con el ticket raro (4 kilos, 140 pesos): la cuadrática se queda con <span class="w-val">${f2(wEstrella([...TICKETS, RARO]))}</span> y la absoluta con <span class="w-val">${f2(wAbs([...TICKETS, RARO]))}</span>.</p>
+             <p class="frase">El costo define qué significa equivocarse. Cambiarlo cambia lo que la máquina aprende.</p>`,
+    ] },
+
+  { titulo: 'Deducir e inducir, lado a lado', vista: { puntos: true, recta: true, slider: true, olla: 'on' },
+    clics: [
+      () => `<table class="t"><tr><th></th><th>Deducir</th><th>Inducir</th></tr>
+        <tr><td>Parte de</td><td>El letrero</td><td>Los tickets</td></tr>
+        <tr><td>Va de</td><td>Lo general al caso</td><td>Los casos a lo general</td></tr>
+        <tr><td>Necesita costo</td><td>No</td><td>Sí</td></tr>
+        <tr><td>Resultado</td><td>Seguro si el letrero es cierto</td><td>Probable y aproximado</td></tr>
+        <tr><td>Precio por kilo</td><td>25</td><td>24.93</td></tr></table>`,
+      () => `<p class="frase">Todo modelo hace las dos cosas: induce la regla con datos y luego la aplica deduciendo.</p>`,
+    ] },
+]
+
+const TORTILLAS = `<svg class="tortillas" viewBox="0 0 300 170" role="img" aria-label="Un kilo de tortillas envuelto en papel">
+  <rect x="40" y="96" width="220" height="56" fill="#fff3c4" stroke="#1a1a1a" stroke-width="3"/>
+  ${[0, 1, 2, 3, 4, 5].map((k) => `<ellipse cx="150" cy="${92 - k * 9}" rx="96" ry="22" fill="${k % 2 ? '#f6dd93' : '#f1cf73'}" stroke="#1a1a1a" stroke-width="3"/>`).join('')}
+  <circle cx="122" cy="44" r="3" fill="#b9892c"/><circle cx="170" cy="40" r="2.5" fill="#b9892c"/><circle cx="150" cy="50" r="2" fill="#b9892c"/>
+  <text x="150" y="132" text-anchor="middle" font-family="JetBrains Mono, monospace" font-weight="700" font-size="20">1 kg</text></svg>`
+
+// ---------- tabla de la olla ----------
+function tablaOlla() {
+  if (SOLO) return ''
+  const fila = (v) => `<tr><td>${v}</td><td class="${st.tabla[v] ? '' : 'vacio'}">${st.tabla[v] ? f2(Lcuad(v, TICKETS)) : 'pasa por aquí'}</td></tr>`
+  return `<table class="t"><tr><th>w</th><th>J(w)</th></tr>${[20, 25, 30].map(fila).join('')}</table>`
+}
+
+// ---------- gráficas ----------
+const NS = 'http://www.w3.org/2000/svg'
+const svgT = document.getElementById('g-tickets')
+const svgO = document.getElementById('g-olla')
+const MT = { l: 56, r: 18, t: 46, b: 40 }
+const escala = (d0, d1, r0, r1) => (v) => r0 + ((v - d0) / (d1 - d0)) * (r1 - r0)
+const el = (tag, attrs, padre) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); padre.appendChild(e); return e }
+const txt = (s, attrs, padre) => { const e = el('text', { 'font-family': 'JetBrains Mono, monospace', 'font-size': 12, ...attrs }, padre); e.textContent = s; return e }
+
+function ejes(svg, X, Y, xs, ys, xlab, ylab) {
+  const [x0, x1] = [X.min, X.max], [y0, y1] = [Y.min, Y.max]
+  for (const v of xs) { el('line', { x1: X(v), y1: Y(y0), x2: X(v), y2: Y(y1), stroke: '#e4e4e4' }, svg); txt(v, { x: X(v), y: Y(y0) + 16, 'text-anchor': 'middle' }, svg) }
+  for (const v of ys) { el('line', { x1: X(x0), y1: Y(v), x2: X(x1), y2: Y(v), stroke: '#e4e4e4' }, svg); txt(v, { x: X(x0) - 8, y: Y(v) + 4, 'text-anchor': 'end' }, svg) }
+  el('line', { x1: X(x0), y1: Y(y0), x2: X(x1), y2: Y(y0), stroke: '#1a1a1a', 'stroke-width': 2.5 }, svg)
+  el('line', { x1: X(x0), y1: Y(y0), x2: X(x0), y2: Y(y1), stroke: '#1a1a1a', 'stroke-width': 2.5 }, svg)
+  txt(xlab, { x: X(x1), y: Y(y0) + 32, 'text-anchor': 'end', 'font-weight': 700 }, svg)
+  txt(ylab, { x: X(x0) + 6, y: Y(y1) - 8, 'font-weight': 700 }, svg)
+}
+
+function dibujarTickets(v) {
+  svgT.replaceChildren()
+  const H = v.olla === 'oculta' ? 560 : 300
+  svgT.setAttribute('viewBox', `0 0 640 ${H}`)
+  const X = escala(0, 5.2, MT.l, 640 - MT.r); X.min = 0; X.max = 5.2
+  const Y = escala(0, 150, H - MT.b, MT.t); Y.min = 0; Y.max = 150
+  ejes(svgT, X, Y, [0, 1, 2, 3, 4, 5], [0, 25, 50, 75, 100, 125, 150], 'kilos', 'pesos')
+  const clip = el('clipPath', { id: 'area' }, svgT); el('rect', { x: X(0), y: Y(150), width: X(5.2) - X(0), height: Y(0) - Y(150) }, clip)
+  const g = el('g', { 'clip-path': 'url(#area)' }, svgT)
+  if (v.letrero) {
+    el('rect', { x: X(0.35), y: Y(140), width: 150, height: 40, fill: '#ffcd42', stroke: '#1a1a1a', 'stroke-width': 2.5 }, svgT)
+    txt('$25 el kilo', { x: X(0.35) + 75, y: Y(140) + 26, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 700 }, svgT)
+  }
+  if (v.recta25) el('line', { x1: X(0), y1: Y(0), x2: X(5.2), y2: Y(25 * 5.2), stroke: '#1a1a1a', 'stroke-width': 3.5 }, g)
+  const D = datos()
+  let visibles = v.puntos ? D.length : 0
+  if (v.puntosPorClic) visibles = Math.max(0, Math.min(3, st.clic))
+  const w = st.w
+  if (v.recta) el('line', { x1: X(0), y1: Y(0), x2: X(5.2), y2: Y(w * 5.2), stroke: '#0847c4', 'stroke-width': 3.5 }, g)
+  D.slice(0, visibles).forEach(([x, y], i) => {
+    const e = w * x - y
+    if (v.cuadrados) {
+      const lado = Math.abs(Y(y) - Y(w * x))
+      el('rect', { x: X(x), y: Math.min(Y(y), Y(w * x)), width: lado, height: lado, fill: '#fb2c36', 'fill-opacity': 0.16, stroke: '#fb2c36', 'stroke-width': 1.5 }, g)
+    }
+    if (v.residuos) {
+      el('line', { x1: X(x), y1: Y(y), x2: X(x), y2: Y(w * x), stroke: '#fb2c36', 'stroke-width': 3 }, g)
+      txt(f2(e), { x: X(x) - 8, y: (Y(y) + Y(w * x)) / 2 + 4, 'text-anchor': 'end', fill: '#fb2c36', 'font-weight': 700 }, svgT)
+    }
+    const p = el('circle', { cx: X(x), cy: Y(y), r: 7, fill: '#1a1a1a', stroke: '#fdfdfd', 'stroke-width': 2 }, svgT)
+    if (v.puntosPorClic && i === visibles - 1) p.style.animation = 'entra 300ms ease-out'
+    if (st.raro && x === RARO[0]) txt('ticket raro', { x: X(x) - 10, y: Y(y) - 12, 'text-anchor': 'end', 'font-weight': 700 }, svgT)
+  })
+  if (v.fantasma) {
+    const yp = w * 5
+    el('circle', { cx: X(5), cy: Y(125), r: 8, fill: 'none', stroke: '#1a1a1a', 'stroke-width': 2, 'stroke-dasharray': '4 3' }, svgT)
+    txt('real: 125', { x: X(5) - 14, y: Y(125) + 30, 'text-anchor': 'end' }, svgT)
+    el('circle', { cx: X(5), cy: Y(yp), r: 7, fill: '#0847c4' }, svgT)
+    txt(`predicción: ${f2(yp)}`, { x: X(5) - 12, y: Y(yp) - 10, 'text-anchor': 'end', fill: '#0847c4', 'font-weight': 700 }, svgT)
+  }
+}
+
+function dibujarOlla(v) {
+  svgO.replaceChildren()
+  const panel = document.getElementById('p-olla')
+  panel.classList.toggle('apagado', v.olla === 'apagada')
+  document.querySelector('.der').classList.toggle('una', v.olla === 'oculta')
+  if (v.olla === 'oculta') return
+  const ws = Array.from({ length: 401 }, (_, k) => 15 + k * 0.05)
+  const Ls = ws.map(L)
+  const ymax = Math.max(...Ls)
+  const paso = ymax > 600 ? 200 : ymax > 150 ? 50 : ymax > 40 ? 10 : 2
+  const top = Math.ceil(ymax / paso) * paso
+  const X = escala(15, 35, MT.l, 640 - MT.r); X.min = 15; X.max = 35
+  const Y = escala(0, top, 300 - MT.b, MT.t); Y.min = 0; Y.max = top
+  const marcas = []; for (let k = 0; k <= top; k += paso * (top / paso > 6 ? 2 : 1)) marcas.push(k)
+  ejes(svgO, X, Y, [15, 20, 25, 30, 35], marcas, 'w', st.perdida === 'abs' ? 'J abs (w)' : 'J(w)')
+  el('path', { d: ws.map((w, i) => `${i ? 'L' : 'M'}${X(w).toFixed(1)},${Y(Ls[i]).toFixed(1)}`).join(' '), fill: 'none', stroke: '#1a1a1a', 'stroke-width': 3 }, svgO)
+  if (v.olla === 'apagada') return
+  const w = st.w, lw = L(w)
+  if (v.tangente && st.perdida === 'cuad') {
+    const m = dJ(w), dw = 2.2
+    el('line', { x1: X(w - dw), y1: Y(lw - m * dw), x2: X(w + dw), y2: Y(lw + m * dw), stroke: '#fb2c36', 'stroke-width': 2.5 }, svgO)
+    txt(`pendiente ${f2(m)}`, { x: X(w), y: Y(lw) - 18, 'text-anchor': 'middle', fill: '#fb2c36', 'font-weight': 700 }, svgO)
+  }
+  if (v.rastro && st.rastro.length) {
+    const pts = [...st.rastro, w].filter((u) => u >= 15 && u <= 35)
+    el('path', { d: pts.map((u, i) => `${i ? 'L' : 'M'}${X(u).toFixed(1)},${Y(Lcuad(u)).toFixed(1)}`).join(' '), fill: 'none', stroke: '#b0007a', 'stroke-width': 2, 'stroke-dasharray': '5 4' }, svgO)
+    for (const u of st.rastro) if (u >= 15 && u <= 35) el('circle', { cx: X(u), cy: Y(Lcuad(u)), r: 5, fill: '#b0007a' }, svgO)
+  }
+  el('line', { x1: X(w), y1: Y(0), x2: X(w), y2: Y(lw), stroke: '#0847c4', 'stroke-width': 1.5, 'stroke-dasharray': '4 4' }, svgO)
+  el('circle', { cx: X(w), cy: Y(lw), r: 9, fill: '#0847c4', stroke: '#1a1a1a', 'stroke-width': 2 }, svgO)
+  txt(`J = ${f2(lw)}`, { x: X(w) + 14, y: Math.min(Y(lw) + 4, Y(0) - 14), fill: '#0847c4', 'font-weight': 700 }, svgO)
+}
+
+
+// ---------- bajar por la olla con α ----------
+function estadoGD() {
+  if (st.fuera) return `Con α = ${st.alfa} se salió de la olla: el paso es demasiado grande.`
+  const k = st.rastro.length
+  return k ? `α = ${st.alfa}. Pasos: ${k}. w = ${f2(st.w)}, J = ${f2(Lcuad(st.w))}.` : `α = ${st.alfa}. Empieza en w = ${f2(st.w)}.`
+}
+function unPaso() {
+  if (st.fuera) return false
+  const nuevo = st.w - st.alfa * dJ(st.w)
+  st.rastro.push(st.w)
+  if (nuevo < 15 || nuevo > 35) { st.fuera = true; pintar(); return false }
+  const sigue = Math.abs(nuevo - st.w) > 0.004
+  st.w = nuevo; pintar(); return sigue
+}
+function rodarGD() {
+  if (st.rodando) return
+  st.rodando = true
+  let k = 0
+  const t = setInterval(() => { if (!unPaso() || ++k > 60) { clearInterval(t); st.rodando = false } }, 320)
+}
+function reiniciarGD() { st.w = 20; st.rastro = []; st.fuera = false; pintar() }
+
+// ---------- render ----------
+const izq = document.getElementById('izq')
+function pintar() {
+  const p = PASOS[st.paso - 1]
+  const v = p.vista
+  if (v.tabla) for (const k of [20, 25, 30]) if (Math.abs(st.w - k) < 0.35) st.tabla[k] = true
+  const clave = `${st.paso}.${st.clic}`, nuevo = clave !== st.ultimo
+  st.ultimo = clave
+  izq.innerHTML = `<h1>${p.titulo}</h1>` + p.clics.slice(0, st.clic + 1).map((f, i) => `<div class="item${nuevo && i === st.clic ? ' nuevo' : ''}">${f()}</div>`).join('')
+  dibujarTickets(v)
+  dibujarOlla(v)
+  document.getElementById('control').classList.toggle('oculto', !v.slider)
+  document.getElementById('w').value = st.w
+  document.getElementById('w-txt').textContent = f2(st.w)
+  document.getElementById('prog').textContent = `${st.paso} de ${PASOS.length}`
+  document.getElementById('ant').disabled = st.paso === 1 && st.clic === 0
+  document.getElementById('sig').disabled = st.paso === PASOS.length && st.clic === p.clics.length - 1
+  enlazarBotones()
+  const u = new URL(location); u.searchParams.set('paso', st.paso); history.replaceState(null, '', u)
+}
+
+function enlazarBotones() {
+  const r = document.getElementById('rodar'); if (r) r.onclick = rodar
+  const u1 = document.getElementById('unpaso'); if (u1) u1.onclick = unPaso
+  const r2 = document.getElementById('rodar2'); if (r2) r2.onclick = rodarGD
+  const re = document.getElementById('reini'); if (re) re.onclick = reiniciarGD
+  document.querySelectorAll('[data-alfa]').forEach((b) => { b.classList.toggle('on', Number(b.dataset.alfa) === st.alfa); b.onclick = () => { st.alfa = Number(b.dataset.alfa); reiniciarGD() } })
+  const m = document.getElementById('mejor'); if (m) m.onclick = () => { st.w = st.perdida === 'abs' ? wAbs() : wEstrella(); pintar() }
+  const raro = document.getElementById('raro')
+  if (raro) { raro.classList.toggle('on', st.raro); raro.textContent = st.raro ? 'Quitar ticket raro' : 'Agregar ticket raro'; raro.onclick = () => { st.raro = !st.raro; pintar() } }
+  document.querySelectorAll('[data-perdida]').forEach((b) => { b.classList.toggle('on', b.dataset.perdida === st.perdida); b.onclick = () => { st.perdida = b.dataset.perdida; pintar() } })
+}
+
+function entrarPaso(k, clic = 0) {
+  st.paso = Math.max(1, Math.min(PASOS.length, k)); st.clic = clic
+  const v = PASOS[st.paso - 1].vista
+  if (!v.opciones) { st.raro = false; st.perdida = 'cuad' }
+  if (v.fijaW === 'estrella') st.w = wEstrella(TICKETS)
+  if (v.rastro) { st.w = 20; st.rastro = []; st.fuera = false }
+  pintar()
+}
+function siguiente() {
+  const p = PASOS[st.paso - 1]
+  if (st.clic < p.clics.length - 1) { st.clic++; pintar() } else if (st.paso < PASOS.length) entrarPaso(st.paso + 1)
+}
+function anterior() {
+  if (st.clic > 0) { st.clic--; pintar() } else if (st.paso > 1) entrarPaso(st.paso - 1, PASOS[st.paso - 2].clics.length - 1)
+}
+
+function rodar() {
+  if (st.rodando) return
+  st.rodando = true
+  let pasos = 0
+  const alpha = 0.05
+  const t = setInterval(() => {
+    const nuevo = st.w - alpha * dJ(st.w)
+    const fin = Math.abs(nuevo - st.w) < 0.004 || ++pasos > 40
+    st.w = Math.min(35, Math.max(15, nuevo))
+    pintar()
+    if (fin) { clearInterval(t); st.rodando = false }
+  }, 380)
+}
+
+document.getElementById('sig').onclick = siguiente
+document.getElementById('ant').onclick = anterior
+document.getElementById('w').addEventListener('input', (e) => { st.w = Number(e.target.value); pintar() })
+document.addEventListener('keydown', (e) => {
+  if (SOLO) return
+  if (e.target.id === 'w') return // las flechas mueven el control cuando tiene el foco
+  if (['ArrowRight', ' ', 'PageDown'].includes(e.key)) { e.preventDefault(); siguiente() }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); anterior() }
+})
+
+window.addEventListener('load', () => {
+  const k = Number(new URLSearchParams(location.search).get('paso')) || 1
+  entrarPaso(k)
+  if (SOLO) for (const id of ['ant', 'sig']) document.getElementById(id).style.display = 'none'
+  // comprobación de los números del brief (en la consola)
+  console.log('[tortillas]', { L20: Lcuad(20, TICKETS), L25: Lcuad(25, TICKETS), L30: Lcuad(30, TICKETS), wEst: wEstrella(TICKETS),
+    LwEst: Lcuad(wEstrella(TICKETS), TICKETS), h5: wEstrella(TICKETS) * 5, wCuadRaro: wEstrella([...TICKETS, RARO]), wAbsRaro: wAbs([...TICKETS, RARO]) })
+})
+</script>
+</body>
+</html>
