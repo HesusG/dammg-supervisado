@@ -56,7 +56,7 @@ Demostraciones (opcionales, para repasar):
 
 *VI.3 Clasificación · VI.4 Árboles de decisión*
 
-Slides: [S3](https://hesusg.github.io/dammg-supervisado/s3/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s3.pdf)) · [S3-DEBRIEF-T1](https://hesusg.github.io/dammg-supervisado/s3-debrief-t1/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s3-debrief-t1.pdf))
+Slides: [S3](https://hesusg.github.io/dammg-supervisado/s3/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s3.pdf)) · [S3-DEBRIEF-T1](https://hesusg.github.io/dammg-supervisado/s3-debrief-t1/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s3-debrief-t1.pdf)) · [PowerPoint con intuición](https://hesusg.github.io/dammg-supervisado/pptx/S3_clasificacion_arboles_intuicion.pptx)
 
 | Notebook | Abrir | Entrega |
 |---|---|---|
@@ -72,7 +72,7 @@ Demostraciones (opcionales, para repasar):
 
 *VI.5 Máquinas de soporte vectorial · integración*
 
-Slides: [S4](https://hesusg.github.io/dammg-supervisado/s4/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s4.pdf))
+Slides: [S4](https://hesusg.github.io/dammg-supervisado/s4/) ([PDF](https://hesusg.github.io/dammg-supervisado/pdf/s4.pdf)) · [PowerPoint con intuición](https://hesusg.github.io/dammg-supervisado/pptx/S4_svm_comparativa_intuicion.pptx)
 
 | Notebook | Abrir | Entrega |
 |---|---|---|
