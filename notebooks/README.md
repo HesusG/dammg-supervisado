@@ -60,6 +60,7 @@ Slides: [S3](https://hesusg.github.io/dammg-supervisado/s3/) ([PDF](https://hesu
 
 | Notebook | Abrir | Entrega |
 |---|---|---|
+| Mini-labs de clase · KNN, umbral, ROC y árboles | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/clase/S3_clasificacion_arboles.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/clase/S3_clasificacion_arboles.html) | no se entrega (práctica en clase) |
 | Lab 3 · Árboles, bosques y boosting | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/labs/L3/lab.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/labs/L3/lab.html) | dom 15 nov, 23:59 (tolerancia: mié 18 nov, 23:59) |
 | Tarea 2 · Árboles, ensambles y SVM | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/tareas/T2/tarea.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/tareas/T2/tarea.html) | dom 15 nov, 23:59 (tolerancia: mié 18 nov, 23:59) |
 
@@ -75,6 +76,7 @@ Slides: [S4](https://hesusg.github.io/dammg-supervisado/s4/) ([PDF](https://hesu
 
 | Notebook | Abrir | Entrega |
 |---|---|---|
+| Mini-labs de clase · SVM, C, kernel y comparativa | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/clase/S4_svm_comparativa.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/clase/S4_svm_comparativa.html) | no se entrega (práctica en clase) |
 | Lab 4 · SVM y comparativa final | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/labs/L4/lab.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/labs/L4/lab.html) | dom 15 nov, 23:59 (tolerancia: mié 18 nov, 23:59) |
 | Proyecto final: analistas de MiBici (equipos) | [![Abrir en Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/HesusG/dammg-supervisado/blob/main/notebooks/proyecto/proyecto.ipynb) [Ver](https://hesusg.github.io/dammg-supervisado/notebooks/proyecto/proyecto.html) | [Instrucciones](https://github.com/HesusG/dammg-supervisado/blob/main/notebooks/proyecto/README.md) | dom 22 nov, 23:59 (tolerancia: mié 25 nov, 23:59) |
 
